@@ -12,7 +12,7 @@
 ; ***********************************************************************************************
 ;
 ;		Add Dictionary Word. Name is string at HL ends in $80-$FF, uses the current page/pointer
-;		values. C identifies whether MACRO ($40) or FORTH $(00)
+;		values. A identifies whether MACRO ($80) or FORTH $(00)
 ;
 ; ***********************************************************************************************
 
@@ -92,6 +92,7 @@ DICTFindWord:
 		push 	bc 								; save registers - return in EHL Carry
 		push 	ix
 
+		ld 		c,a 							; macro forth flag in C
 		ld 		a,DictionaryPage 				; switch to dictionary page
 		call 	PAGESwitch
 

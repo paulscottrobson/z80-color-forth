@@ -20,12 +20,12 @@ SystemInformationTable:
 SINextFreeCode: 									; +0 	Next Free Code Byte
 		dw 		FreeMemory
 SINextFreeCodePage: 								; +2 	Next Free Code Byte Page
-		dw 		FirstCodePage
+		db 		FirstCodePage,0
 
 SIBootCodeAddress:									; +4	Run from here
-		dw 		HaltZ80
+		dw 		LOADBootstrap
 SIBootCodePage: 									; +6    Run page.
-		dw		FirstCodePage
+		db		FirstCodePage,0
 
 SIPageUsage:										; +8 	Page Usage Table
 		dw 		PageUsage,0 			

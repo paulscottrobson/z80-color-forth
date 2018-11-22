@@ -20,53 +20,35 @@ LOADBootstrap:
 		call 	PAGESwitch
 		ld 		ix,$C000 							; current section being loaded.
 		ld 		c,0 								; used to display progress.
+
+		ld 		de,$ABCD
 ;
 ;		Once here for every 'chunk'. We copy the text to the editor buffer in 
-;		chunks (currently 1024 bytes) until we've done all 16k of the page.
+;		chunks (currently 512 bytes) until we've done all 16k of the page.
 ;
 __LOADBootLoop:
-
 		push 	ix 									; HL = Current Section
 		pop 	hl
 		push 	bc
+		push 	de
 		ld 		de,EditBuffer  						; Copy to edit buffer 1/2k (512 bytes) of code.
 		ld 		bc,512
 		ldir 	
+		pop 	de
 		pop 	bc
 
+		push 	de
 		ld 		h,0 								; Progress prompt.
-		ld 		l,c
-		ld 		de,$052A
+		ld 		a,ixh 								; derive position.
+		rrc 	a
+		ld 		l,a
+		and 	31
+		ld 		de,$022A
 		call 	GFXWriteCharacter
 		inc 	c
+		pop 	de
 
-		ld 		hl,EditBuffer 						; now scan the edit buffer
-		call 	LOADScanBuffer 
-
-		ld 		de,512 								; add 512 size to IX
-		add 	ix,de
-		push 	ix									; until wrapped round to $0000
-		pop 	hl
-		bit 	7,h
-		jr 		nz,__LOADBootLoop
-
-__LOADEnds:
-		call 	PAGERestore 						; restore page
-		ret 										; and exit
-
-; ********************************************************************************************************
-;
-;									Process (compiling) the text at HL
-; 
-; ********************************************************************************************************
-
-LOADScanBuffer:
-		push 	af
-		push 	bc
-		push 	de
-		push 	hl
-		push 	ix
-
+		ld 		hl,EditBuffer
 __LOADScanLoop:
 		ld 		a,(hl) 								; look at tage
 		cp 		$FF 								; was it $FF ?
@@ -78,12 +60,19 @@ __LOADNextWord: 									; look for the next bit 7 high.
 		inc 	hl 									; advance forward to next word.
 		bit		7,(hl)
 		jr 		z,__LOADNextWord
-		jr 		__LOADScanLoop 
+		jr 		__LOADScanLoop
 
 __LOADScanExit:
-		pop 	ix
-		pop 	hl
-		pop 	de
+		ld 		bc,512 								; add 512 size to IX
+		add 	ix,bc
+		push 	ix									; until wrapped round to $0000
 		pop 	bc
-		pop 	af
-		ret
+		bit 	7,b
+		jr 		nz,__LOADBootLoop
+
+__LOADEnds:
+		call 	PAGERestore 						; restore page
+
+w2:		jp 		w2 									; go to start interpreter
+
+

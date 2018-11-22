@@ -56,11 +56,7 @@ for f in sys.argv[1:]:
 		elif word[0] == "{" and word[-1] == "}":		# Cyan $85
 			colour = 0x85
 			word = word[1:-1]
-		#
-		#	If it's not a string make it lower case, just because you should.
-		#
-		if word[0] != '"' or word[-1] != "":			
-			word = word.lower()
+		word = word.lower() 							# make lower case.
 		#print("{0:02x} {1}".format(colour,word))
 		#
 		#	Make the final word and check it fits.

@@ -10,8 +10,8 @@
 ; ***************************************************************************************
 
 StackTop = $7EF0 									; Top of stack
-EditBuffer = $7B08 									; 512 byte edit buffer (2 bytes either side)
-ErrorMessageBuffer = $7D10
+EditBuffer = $7B08 									; 512 byte edit buffer to $7D10
+COMWorkingStack = $7D40 							; working stack while compiling.
 
 DictionaryPage = $20 								; dictionary page
 BootstrapPage = $22 								; bootstrap page

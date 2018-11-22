@@ -1,3 +1,4 @@
 TODO
-- Identify colours and report the importer.
-- Write compiler
+- Stack Dump.
+- Write and test compiler. Done: Green, Yellow Todo: Red, Magenta, Cyan
+- Spec the CLI interface and do it.
