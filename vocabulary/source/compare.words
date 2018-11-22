@@ -1,0 +1,38 @@
+; ***************************************************************************************
+; ***************************************************************************************
+;
+;		Name : 		compare.words
+;		Author :	Paul Robson (paul@robsons.org.uk)
+;		Date : 		16th November 2018
+;		Purpose :	Comparison words, min and max.
+;
+; ***************************************************************************************
+; ***************************************************************************************
+
+; @word[ix] less
+		pop 	hl
+		ex 		de,hl
+		ld 		a,d						; this is calculating true if B < A e.g. 4 7 < 
+		xor 	h 
+		add 	a,a 					; if the signs are different, check those.
+		jr 		c,__LessDifferentSigns
+
+		push 	de
+		ex 		de,hl 					; want to do B-A
+		sbc		hl,de 					; carry set if B-A < 0 e.g. B < A
+		pop 	de
+		jr 		c,__LessTrue
+
+__LessFalse:
+		ld 		de,$0000
+		jr 		__LessExit
+
+__LessDifferentSigns:
+		bit 	7,d 					; if B is +ve then B must be > A
+		jr 		z,__LessFalse
+
+__LessTrue:
+		ld 		de,$FFFF		
+__LessExit:
+
+; @end
