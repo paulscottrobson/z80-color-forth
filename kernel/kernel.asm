@@ -17,7 +17,6 @@ DictionaryPage = $20 								; dictionary page
 BootstrapPage = $22 								; bootstrap page
 FirstCodePage = $24 								; first page of actual code.
 
-		opt 	zxnextreg
 		org 	$8000 								; $8000 boot.
 		jr 		Boot
 		org 	$8004 								; $8004 address of sysinfo

@@ -41,8 +41,8 @@ __LOADBootLoop:
 		ld 		h,0 								; Progress prompt.
 		ld 		a,ixh 								; derive position.
 		rrc 	a
-		ld 		l,a
 		and 	31
+		ld 		l,a
 		ld 		de,$022A
 		call 	GFXWriteCharacter
 		inc 	c
