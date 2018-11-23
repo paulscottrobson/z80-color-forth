@@ -11,7 +11,7 @@
 
 ; ***********************************************************************************************
 ;
-;		Add Dictionary Word. Name is string at BC ends in $80-$FF, uses the current page/pointer
+;		Add Dictionary Word. Name is string at HL ends in $80-$FF, uses the current page/pointer
 ;		values. A identifies whether MACRO ($80) or FORTH $(00)
 ;
 ; ***********************************************************************************************
@@ -22,16 +22,14 @@ DICTAddWord:
 		push 	de
 		push	hl
 		push 	ix
-
-		push 	bc 									; save word address.
-		ld 		c,a 								; put the dictionary marker in C
+		push 	hl 									
 		ld 		b,-1								; put length of string in B
 __DICTAddGetLength:
 		inc 	hl
 		inc 	b
 		bit 	7,(hl)
 		jr 		z,__DICTAddGetLength
-		pop 	hl 									; restore word address.
+		pop 	hl
 
 		ld 		a,DictionaryPage					; switch to dictionary page
 		call 	PAGESwitch
@@ -84,7 +82,7 @@ __DICTAddCopy:
 
 ; ***********************************************************************************************
 ;
-;			Find word in dictionary. BC points to name. A is the mask for flag/macro.
+;			Find word in dictionary. HL points to name. C is the mask for flag/macro.
 ;			On exit, HL is the address and E the page number with CC if found, 
 ;			CS set and HL=DE=0 if not found.
 ;
@@ -94,11 +92,7 @@ DICTFindWord:
 		push 	bc 								; save registers - return in EHL Carry
 		push 	ix
 
-		ld 		h,b 							; put address of name in HL. 
-		ld 		l,c
-
 		ld 		c,a 							; macro forth flag in C
-
 		ld 		a,DictionaryPage 				; switch to dictionary page
 		call 	PAGESwitch
 
@@ -160,3 +154,4 @@ __DICTFindExit:
 		pop 	ix 								; pop registers and return.
 		pop 	bc
 		ret
+

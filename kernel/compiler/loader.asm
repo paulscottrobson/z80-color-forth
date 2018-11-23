@@ -4,7 +4,7 @@
 ;		Name : 		loader.asm
 ;		Author : 	Paul Robson (paul@robsons.org.uk)
 ;		Purpose : 	Source loader
-;		Date : 		22nd November 2018
+;		Date : 		19th November 2018
 ;
 ; ********************************************************************************************************
 ; ********************************************************************************************************
@@ -16,61 +16,82 @@
 ; ********************************************************************************************************
 
 LOADBootstrap:
+		ld 		hl,$0000 							; get SP, the operating stack, into DE
+		add 	hl,sp
+		ex 		de,hl 
+
+		ld 		sp,LOADStack 						; the stack used while loading.
+
 		ld 		a,BootstrapPage 					; set the current page to bootstrap page.
 		call 	PAGESwitch
 		ld 		ix,$C000 							; current section being loaded.
-		ld 		c,0 								; used to display progress.
-
-		ld 		de,$ABCD
 ;
 ;		Once here for every 'chunk'. We copy the text to the editor buffer in 
-;		chunks (currently 512 bytes) until we've done all 16k of the page.
+;		chunks (currently 1024 bytes) until we've done all 16k of the page.
 ;
 __LOADBootLoop:
-		push 	ix 									; HL = Current Section
-		pop 	hl
-		push 	bc
+
+		push 	bc 									; save registers
 		push 	de
+		push 	hl
+
+		push 	ix 									; HL = Current Section in IX.
+		pop 	hl
 		ld 		de,EditBuffer  						; Copy to edit buffer 1/2k (512 bytes) of code.
 		ld 		bc,512
 		ldir 	
-		pop 	de
-		pop 	bc
 
-		push 	de
-		ld 		h,0 								; Progress prompt.
-		ld 		a,ixh 								; derive position.
-		rrc 	a
+		ld 		h,0 								; Progress prompt at the screen top.
+		ld 		a,ixh
+		rrca
 		and 	31
 		ld 		l,a
-		ld 		de,$022A
+		ld 		de,$052A
 		call 	GFXWriteCharacter
-		inc 	c
+
+		pop 	hl 									; restore registers
 		pop 	de
+		pop 	bc
 
-		ld 		hl,EditBuffer
-__LOADScanLoop:
-		ld 		a,(hl) 								; look at tage
-		cp 		$FF 								; was it $FF ?
-		jr 		z,__LOADScanExit 					; if so, we are done.
+		ld 		bc,EditBuffer 						; now scan the edit buffer
+		call 	LOADScanBuffer 
 
-		call 	COMCompileExecute 					; execute text at HL
-
-__LOADNextWord: 									; look for the next bit 7 high.
-		inc 	hl 									; advance forward to next word.
-		bit		7,(hl)
-		jr 		z,__LOADNextWord
-		jr 		__LOADScanLoop
-
-__LOADScanExit:
 		ld 		bc,512 								; add 512 size to IX
 		add 	ix,bc
-		push 	ix									; until wrapped round to $0000
-		pop 	bc
-		bit 	7,b
-		jr 		nz,__LOADBootLoop
+		jr 		nc,__LOADBootLoop 					; will cause carry to occur on overflow.
 
 __LOADEnds:
 		call 	PAGERestore 						; restore page
-		jp 		StartSystem 
+		jp 		HaltZ80 							; and stop
+		
+; ********************************************************************************************************
+;
+;		  Process (compiling) the text at BC. The current stack (uncached) is in DE
+; 
+; ********************************************************************************************************
 
+LOADScanBuffer:
+		push 	af
+		push 	bc
+		push 	ix
+
+__LOADScanLoop:
+		ld 		a,(bc) 								; look at tage
+		cp 		$FF 								; was it $FF - end of page marker ?
+		jr 		z,__LOADScanExit 					; if so, we are done.
+
+		call 	COMCompileExecute 					; execute text at BC, 
+													; uncached stack in DE.
+
+__LOADNextWord: 									; look for the next bit 7 high.
+		inc 	bc 									; advance forward to next word.
+		ld 		a,(bc)
+		bit 	7,a
+		jr 		z,__LOADNextWord
+		jr 		__LOADScanLoop 
+
+__LOADScanExit:
+		pop 	ix
+		pop 	bc
+		pop 	af
+		ret

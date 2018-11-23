@@ -1,3 +1,5 @@
 TODO
 - Stack Dump.
-- Write and test compiler. Done: Green, Yellow Todo: Red, Magenta
+- Write and test compiler. (Green, Yellow working) Red, Magenta
+- Reset the SP Stack. on boot
+- Paging

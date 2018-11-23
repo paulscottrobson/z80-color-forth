@@ -9,9 +9,9 @@
 ; ***************************************************************************************
 ; ***************************************************************************************
 
-EditBuffer = $7B08 									; 512 byte edit buffer to $7B00-$7D10
-LOADStack = $7D80 									; stack used while loading $7D10-$7D80
-StackTop = $7EFC 									; Top of stack
+StackTop = $7EF0 									; Top of stack
+EditBuffer = $7B08 									; 512 byte edit buffer to $7D10
+COMWorkingStack = $7D40 							; working stack while compiling.
 
 DictionaryPage = $20 								; dictionary page
 BootstrapPage = $22 								; bootstrap page
@@ -35,16 +35,13 @@ Boot:	ld 		sp,(SIStack)						; reset Z80 Stack
 		ld 		hl,(SIBootCodeAddress) 				; get boot address
 		jp 		(hl) 								; and go there
 
-ErrorHandler:
-		jr 		ErrorHandler
-
 HaltZ80:di 											; stop everything.
 		halt
 		jr 		HaltZ80
 
+		include "support/commandline.asm"			; command line system
 		include "support/paging.asm" 				; page switcher (not while executing)
 		include "support/farmemory.asm" 			; far memory routines
-		include "support/utilities.asm" 			; support utility functions
 		include "support/divide.asm" 				; division
 		include "support/multiply.asm" 				; multiplication
 		include "support/graphics.asm" 				; common graphics
@@ -53,12 +50,14 @@ HaltZ80:di 											; stop everything.
 		include "support/screen_layer2.asm"
 		include "support/screen_lores.asm"
 
+		include "compiler/utilities.asm" 			; compiler utilities
+		include "compiler/loader.asm"
 		include "compiler/constant.asm"
 		include "compiler/dictionary.asm"
-		include "compiler/loader.asm"
 		include "compiler/compiler.asm"
 
-		include "temp/__words.asm" 					; core words
+		include "temp/__words.asm" 					; and the actual words
+
 
 AlternateFont:										; nicer font
 		include "font.inc" 							; can be $3D00 here to save memory

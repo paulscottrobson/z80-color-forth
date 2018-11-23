@@ -11,16 +11,15 @@
 
 ; ***********************************************************************************************
 ;
-;			Convert ASCIIZ string at BC to constant in HL. DE 0, Carry Clear if true
-;							Uses Colorforth's backend - format.
+;			Convert ASCIIZ string at HL to constant in HL. DE 0, Carry Clear if true
+;									Uses Colorforth's backend - format.
 ;
 ; ***********************************************************************************************
 
 CONSTConvert:
 	push 	bc
 
-	ld 		d,b 									; string in DE.
-	ld 		e,c
+	ex 		de,hl 									; string in DE.
 	ld 		hl,$0000								; result in HL.
 	inc 	de 										; skip over the tag
 	ld 		c,0										; C is the negate flag
