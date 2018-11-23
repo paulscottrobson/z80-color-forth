@@ -10,12 +10,11 @@
 ; ***************************************************************************************
 
 EditBuffer = $7B08 									; 512 byte edit buffer to $7B00-$7D10
-LOADStack = $7D80 									; stack used while loading $7D10-$7D80
 StackTop = $7EFC 									; Top of stack
 
-DictionaryPage = $20 								; dictionary page
-BootstrapPage = $22 								; bootstrap page
-FirstCodePage = $24 								; first page of actual code.
+DictionaryPage = $20 								; $20 dictionary page
+													; $22 is screens 0..31 bootstrap loading
+FirstCodePage = $24 								; $24 first page of actual code.
 
 		org 	$8000 								; $8000 boot.
 		jr 		Boot
@@ -55,7 +54,6 @@ HaltZ80:di 											; stop everything.
 
 		include "compiler/constant.asm"
 		include "compiler/dictionary.asm"
-		include "compiler/loader.asm"
 		include "compiler/compiler.asm"
 
 		include "temp/__words.asm" 					; core words

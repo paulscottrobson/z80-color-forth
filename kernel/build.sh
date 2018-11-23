@@ -1,7 +1,7 @@
 #
 #		Tidy up
 #
-rm boot.img ../files/boot.img boot.lst
+rm boot.img ../files/boot.img kernel.lst
 #
 #		Build the bootloader
 #

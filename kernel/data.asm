@@ -23,7 +23,7 @@ SINextFreeCodePage: 								; +2 	Next Free Code Byte Page
 		db 		FirstCodePage,0
 
 SIBootCodeAddress:									; +4	Run from here
-		dw 		LOADBootstrap
+		dw 		CompilerTest
 SIBootCodePage: 									; +6    Run page.
 		db		FirstCodePage,0
 
@@ -47,11 +47,6 @@ PAGEStackPointer: 									; stack used for switching pages
 PAGEStackBase:
 		ds 		16
 
-COMXStackPointer:									; stack used for re-entrant Compiler
-		dw 		COMXStackBase
-COMXStackBase:
-		ds 		16
-
 DICTForthMacroFlag:									; does it go in FORTH ($00) MACRO ($40)
 		db 		0
 ;
@@ -69,18 +64,6 @@ DIFontBase:											; +16 	768 byte font, begins with space
 		dw 		AlternateFont,0 							
 DIScreenMode:										; +20 	Current Mode
 		dw 		0,0
-;
-;			Page usage table.
-;
-PageUsage:
-		db 		1									; $20 (dictionary) [1 = system]
-		db 		1 									; $22 (bootstrap)  [2 = code]
-		db 		2									; $24 (first code)
-		db 		0,0,0,0,0 							; $26-$2E 		   [0 = unused]
-		db 		0,0,0,0,0,0,0,0 					; $30-$3E
-		db 		0,0,0,0,0,0,0,0 					; $40-$4E
-		db 		0,0,0,0,0,0,0,0 					; $50-$5E
-		db 		$FF 								; end of page.
 
 		org 	$A000
 FreeMemory:		

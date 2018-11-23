@@ -1,5 +1,5 @@
 TODO
 - Stack Dump.
-- Write and test compiler. (Green, Yellow working) Red, Magenta
-- Reset the SP Stack. on boot
+- Write and test compiler. (Green, Yellow Red, Magenta)
+- The importer needs to detect not assume the bootstrap.
 - Paging
