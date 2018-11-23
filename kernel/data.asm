@@ -46,7 +46,10 @@ PAGEStackPointer: 									; stack used for switching pages
 		dw 		0
 PAGEStackBase:
 		ds 		16
-
+CLIBuffer:
+		ds 		64
+CLILastKeyboardState:
+		db 		0
 DICTForthMacroFlag:									; does it go in FORTH ($00) MACRO ($40)
 		db 		0
 ;

@@ -35,14 +35,11 @@ Boot:	ld 		sp,(SIStack)						; reset Z80 Stack
 		ld 		hl,(SIBootCodeAddress) 				; get boot address
 		jp 		(hl) 								; and go there
 
-ErrorHandler:
-		nop
-		jr 		ErrorHandler
-		
 HaltZ80:di 											; stop everything.
 		halt
 		jr 		HaltZ80
 
+		include "support/commandline.asm"			; command line system
 		include "support/paging.asm" 				; page switcher (not while executing)
 		include "support/farmemory.asm" 			; far memory routines
 		include "support/divide.asm" 				; division

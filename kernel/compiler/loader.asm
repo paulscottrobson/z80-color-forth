@@ -72,7 +72,5 @@ __LOADScanExit:
 
 __LOADEnds:
 		call 	PAGERestore 						; restore page
-
-w2:		jp 		w2 									; go to start interpreter
-
+		jp 		StartSystem 
 
