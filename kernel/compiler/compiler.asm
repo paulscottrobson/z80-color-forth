@@ -11,9 +11,9 @@
 
 CompilerTest:				; bodge ; part of CLI loader eventually
 
-		ld 		de,$AC02 	; set up a fake stack :)
+		ld 		de,$5AC2 	; set up a fake stack :)
 		push 	de
-		ld 		de,$AC01
+		ld 		de,$5AC1
 
 		ld 		bc,0
 		call 	COMCompileBuffer

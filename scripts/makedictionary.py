@@ -14,7 +14,7 @@ from labels import *
 
 print("Importing core words into dictionary.")
 image = imagelib.ColorForthImage()
-labels = LabelExtractor("kernel.lst").getLabels()
+labels = LabelExtractor("boot.img.vice").getLabels()
 count = 0
 keys = [x for x in labels.keys() if x[:7] == "cforth_"]
 keys = [x for x in keys if x[-6:] == "_forth" or x[-6:] == "_macro"]

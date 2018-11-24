@@ -24,8 +24,8 @@ __BUFDiv32:
 		dec 	a
 		jr 		nz,__BUFDiv32 						; this gives the index into the page
 		ld 		a,SourceFirstPage 					; add it twice to first page gives page #
-		add 	c 									; where the buffer is.
-		add 	c
+		add 	a,c 								; where the buffer is.
+		add 	a,c
 
 		pop  	bc 									; get the buffer number back
 		push 	af 									; save buffer page

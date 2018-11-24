@@ -25,6 +25,7 @@ FirstCodePage = SourceFirstPage + SourcePages/16	; first page of actual code.
 EditBuffer = $7B08 									; $7B00-$7D20 512 byte edit buffer
 StackTop = $7EFC 									;      -$7EFC Top of stack
 
+		opt 	zxnextreg
 		org 	$8000 								; $8000 boot.
 		jr 		Boot
 		org 	$8004 								; $8004 address of sysinfo
