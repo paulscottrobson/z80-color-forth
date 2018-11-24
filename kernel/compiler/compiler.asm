@@ -52,7 +52,7 @@ COMCompileBuffer:
 __COMCBTag:
 		ld 		a,(bc) 								; look at the first word
 		cp 		$FF 								; reached the end ?
-		jr 		nz,__COMCBExit
+		jr 		z,__COMCBExit
 
 		ld 		a,(bc)
 		cp 		$82 								; red (defining word)
@@ -195,11 +195,11 @@ COMW_CallRoutineAtAHL:
 
 COMW_CallRoutineAtAHL_ConsoleVersion:
 		pop 	bc 									; return address. makes stack right
-		ld 		(COMW_CVOut+1),bc
+		ld 		(__COMW_CVOut+1),bc
 		call 	PAGESwitch 							; switch to that page.
 		call 	__COMW_CallHL 						; call the routine to call (HL)
 		call 	PAGERestore 						; fix the page back up
-__COMWCVOut:
+__COMW_CVOut:
 		jp 		$0000
 
 ;

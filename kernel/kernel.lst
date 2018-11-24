@@ -1,6 +1,6 @@
               	; --------------------------------------
               	; zasm: assemble "kernel.asm"
-              	; date: 2018-11-24 09:50:38
+              	; date: 2018-11-24 10:18:24
               	; --------------------------------------
 
 
@@ -34,18 +34,18 @@
 8000:         			org 	$8000 								; $8000 boot.
 8000: 1804    			jr 		Boot
 8002: FFFF    			org 	$8004 								; $8004 address of sysinfo
-8004: A08A    			dw 		SystemInformationTable
+8004: F28A    			dw 		SystemInformationTable
               	
-8006: ED7BB08A	Boot:	ld 		sp,(SIStack)						; reset Z80 Stack
+8006: ED7B028B	Boot:	ld 		sp,(SIStack)						; reset Z80 Stack
 800A: F3      			di											; disable interrupts
               		
 800B: ED910702			db 		$ED,$91,7,2							; set turbo port (7) to 2 (14Mhz speed)
 800F: 2E00    			ld 		l,0 								; set graphics mode 0 (48k Spectrum)
 8011: CDE680  			call 	GFXMode
               	
-8014: 3AA68A  			ld 		a,(SIBootCodePage) 					; get the page to start
+8014: 3AF88A  			ld 		a,(SIBootCodePage) 					; get the page to start
 8017: CD2480  			call 	PAGEInitialise
-801A: 2AA48A  			ld 		hl,(SIBootCodeAddress) 				; get boot address
+801A: 2AF68A  			ld 		hl,(SIBootCodeAddress) 				; get boot address
 801D: E9      			jp 		(hl) 								; and go there
               	
 801E:         	ErrorHandler:
@@ -79,8 +79,8 @@
 8028: ED9257  			db 		$ED,$92,$57
 802B: 3D      			dec 	a
 802C: 08      			ex 		af,af' 								; put page in A'
-802D: 21B68A  			ld 		hl,PAGEStackBase 					; reset the page stack
-8030: 22B48A  			ld 		(PAGEStackPointer),hl
+802D: 21088B  			ld 		hl,PAGEStackBase 					; reset the page stack
+8030: 22068B  			ld 		(PAGEStackPointer),hl
 8033: C9      			ret
               	
               	; ********************************************************************************************************
@@ -94,11 +94,11 @@
 8035: E5      			push 	hl
               	
 8036: F5      			push 	af 									; save A on stack
-8037: 2AB48A  			ld 		hl,(PAGEStackPointer) 				; put A' on the stack, the current page
+8037: 2A068B  			ld 		hl,(PAGEStackPointer) 				; put A' on the stack, the current page
 803A: 08      			ex 		af,af'
 803B: 77      			ld 		(hl),a
 803C: 23      			inc 	hl
-803D: 22B48A  			ld 		(PAGEStackPointer),hl
+803D: 22068B  			ld 		(PAGEStackPointer),hl
               	
 8040: F1      			pop 	af 									; restore new A
 8041: ED9256  			db 		$ED,$92,$56							; switch to page A
@@ -120,10 +120,10 @@
 804D:         	PAGERestore:
 804D: F5      			push 	af
 804E: E5      			push 	hl
-804F: 2AB48A  			ld 		hl,(PAGEStackPointer) 				; pop the old page off
+804F: 2A068B  			ld 		hl,(PAGEStackPointer) 				; pop the old page off
 8052: 2B      			dec 	hl
 8053: 7E      			ld 		a,(hl)
-8054: 22B48A  			ld 		(PAGEStackPointer),hl
+8054: 22068B  			ld 		(PAGEStackPointer),hl
 8057: ED9256  			db 		$ED,$92,$56							; switch to page A
 805A: 3C      			inc 	a
 805B: ED9257  			db 		$ED,$92,$57
@@ -159,13 +159,13 @@
 8064: F5      			push 	af 									; save byte and HL
 8065: E5      			push 	hl
 8066: F5      			push 	af 									; save byte
-8067: 3AA28A  			ld		a,(SINextFreeCodePage) 				; switch to page
+8067: 3AF48A  			ld		a,(SINextFreeCodePage) 				; switch to page
 806A: CD3480  			call 	PAGESwitch
-806D: 2AA08A  			ld 		hl,(SINextFreeCode) 				; write to memory location
+806D: 2AF28A  			ld 		hl,(SINextFreeCode) 				; write to memory location
 8070: F1      			pop 	af
 8071: 77      			ld 		(hl),a
 8072: 23      			inc 	hl 									; bump memory location
-8073: 22A08A  			ld 		(SINextFreeCode),hl 				; write back
+8073: 22F28A  			ld 		(SINextFreeCode),hl 				; write back
 8076: CD4D80  			call 	PAGERestore
 8079: E1      			pop 	hl 									; restore and exit
 807A: F1      			pop 	af
@@ -182,14 +182,14 @@
 807D: D5      			push 	de
 807E: E5      			push 	hl
 807F: EB      			ex 		de,hl 								; word into DE
-8080: 3AA28A  			ld		a,(SINextFreeCodePage) 				; switch to page
+8080: 3AF48A  			ld		a,(SINextFreeCodePage) 				; switch to page
 8083: CD3480  			call 	PAGESwitch
-8086: 2AA08A  			ld 		hl,(SINextFreeCode) 				; write to memory location
+8086: 2AF28A  			ld 		hl,(SINextFreeCode) 				; write to memory location
 8089: 73      			ld 		(hl),e
 808A: 23      			inc 	hl 	
 808B: 72      			ld 		(hl),d
 808C: 23      			inc 	hl
-808D: 22A08A  			ld 		(SINextFreeCode),hl 				; write back
+808D: 22F28A  			ld 		(SINextFreeCode),hl 				; write back
 8090: CD4D80  			call 	PAGERestore
 8093: E1      			pop 	hl
 8094: D1      			pop 	de 									; restore and exit
@@ -313,7 +313,7 @@
               	
 80DC:         	GFXClearScreen:
 80DC: E5      			push 	hl 									; clear screen by reinitialising
-80DD: 3AFC8A  			ld 		a,(DIScreenMode)
+80DD: 3A508B  			ld 		a,(DIScreenMode)
 80E0: 6F      			ld 		l,a
 80E1: CDE680  			call 	GFXMode
 80E4: E1      			pop 	hl
@@ -330,7 +330,7 @@
 80E7: D5      			push 	de
 80E8: E5      			push 	hl
 80E9: 7D      			ld 		a,l 								; save current mode
-80EA: 32FC8A  			ld 		(DIScreenMode),a
+80EA: 32508B  			ld 		(DIScreenMode),a
 80ED: 2D      			dec 	l 									; L = 1 mode layer2
 80EE: 2808    			jr 		z,__GFXLayer2
 80F0: 2D      			dec 	l
@@ -348,17 +348,17 @@
               	
 8100:         	__GFXConfigure:
 8100: 7D      			ld 		a,l 								; save screen size
-8101: 32E88A  			ld 		(DIScreenWidth),a
+8101: 323C8B  			ld 		(DIScreenWidth),a
 8104: 7C      			ld 		a,h
-8105: 32EC8A  			ld 		(DIScreenHeight),a
+8105: 32408B  			ld 		(DIScreenHeight),a
 8108: EB      			ex 		de,hl 								; save driver
-8109: 22F48A  			ld 		(DIScreenDriver),hl
+8109: 22488B  			ld 		(DIScreenDriver),hl
               	
 810C: 6A      			ld 		l,d 								; put sizes in HL DE
 810D: 2600    			ld 		h,0
 810F: 1600    			ld 		d,0
 8111: CDC280  			call 	MULTMultiply16 						; multiply to get size and store.
-8114: 22F08A  			ld 		(DIScreenSize),hl
+8114: 22448B  			ld 		(DIScreenSize),hl
               	
 8117: E1      			pop 	hl
 8118: D1      			pop 	de
@@ -378,7 +378,7 @@
 811E: E5      			push 	hl
 811F: 012981  			ld 		bc,__GFXWCExit
 8122: C5      			push 	bc
-8123: ED4BF48A			ld 		bc,(DIScreenDriver)
+8123: ED4B488B			ld 		bc,(DIScreenDriver)
 8127: C5      			push 	bc
 8128: C9      			ret
 8129:         	__GFXWCExit:
@@ -449,7 +449,7 @@
 8169: 29      			add 	hl,hl 								; x 8
 816A: 29      			add 	hl,hl
 816B: 29      			add 	hl,hl
-816C: ED5BF88A			ld 		de,(DIFontBase) 					; add the font base.
+816C: ED5B4C8B			ld 		de,(DIFontBase) 					; add the font base.
 8170: 19      			add 	hl,de
 8171: EB      			ex 		de,hl 								; put in DE (font address)
               	
@@ -1064,9 +1064,9 @@
 83FF: C605    			add 	a,5
 8401: DD7700  			ld 		(ix+0),a 							; offset is length + 5
               	
-8404: 3AA28A  			ld 		a,(SINextFreeCodePage)				; code page
+8404: 3AF48A  			ld 		a,(SINextFreeCodePage)				; code page
 8407: DD7701  			ld 		(ix+1),a
-840A: ED5BA08A			ld 		de,(SINextFreeCode)					; code address
+840A: ED5BF28A			ld 		de,(SINextFreeCode)					; code address
 840E: DD7302  			ld 		(ix+2),e
 8411: DD7203  			ld 		(ix+3),d 
               	
@@ -1359,80 +1359,205 @@
               	; ***************************************************************************************
               	; ***************************************************************************************
               	
-852C:         	CompilerTest:
-852C: 010000  			ld 		bc,0
-852F: CD3485  			call 	COMCompileBuffer
-8532: 18FE    	w1: 	jr 		w1
+852C:         	CompilerTest:				; bodge ; part of CLI loader eventually
               	
+852C: 1102AC  			ld 		de,$AC02 	; set up a fake stack :)
+852F: D5      			push 	de
+8530: 1101AC  			ld 		de,$AC01
+              	
+8533: 010000  			ld 		bc,0
+8536: CD3B85  			call 	COMCompileBuffer
+8539: 18FE    	w1: 	jr 		w1
+              	
+              	; ***************************************************************************************
               	; ***************************************************************************************
               	;
               	;					Compile the buffer given in BC. Not re-entrant.
               	;				Called as normal word, so DE is TOS and data on Z80 Stack
-              	;										NOT re-entrant.
+              	;
+              	;			   NOT re-entrant. Could technically call itself but will error.
+              	;
+              	; ***************************************************************************************
               	; ***************************************************************************************
               	
-8534:         	COMCompileBuffer:
-8534: DD01    			db 		$DD,$01
-8536: E1      			pop 	hl 									; return address, back to a data stack
-8537: 227B85  			ld 		(__COMCBOut+1),hl 					; save for leaving.
-853A: D5      			push 	de 									; make the stack uncached.
+853B:         	COMCompileBuffer:
+853B: DD01    			db 		$DD,$01
+853D: E1      			pop 	hl 									; return address, back to a data stack
+853E: 228885  			ld 		(__COMCBOut+1),hl 					; save for leaving.
+8541: D5      			push 	de 									; make the stack uncached.
               	
-853B: CD9784  			call 	BUFFindBuffer 						; A:BC is the buffer page/address
-853E: CDB284  			call 	BUFLoadBuffer 						; load buffer into edit buffer.
+8542: CD9784  			call 	BUFFindBuffer 						; A:BC is the buffer page/address
+8545: CDB284  			call 	BUFLoadBuffer 						; load buffer into edit buffer.
               	
-8541: 210000  			ld 		hl,$0000							; put the stack in IX and HL
-8544: 39      			add 	hl,sp
-8545: E5      			push 	hl
-8546: DDE1    			pop 	ix
+8548: 210000  			ld 		hl,$0000							; put the stack in IX and HL
+854B: 39      			add 	hl,sp
+854C: E5      			push 	hl
+854D: DDE1    			pop 	ix
               	
-8548: 01C0FF  			ld 		bc,-64 								; make working space so we can put stuff
-854B: 09      			add 	hl,bc 								; on the stack at IX without stuffing up
-854C: F9      			ld 		sp,hl								; this code.
+854F: 01C0FF  			ld 		bc,-64 								; make working space so we can put stuff
+8552: 09      			add 	hl,bc 								; on the stack at IX without stuffing up
+8553: F9      			ld 		sp,hl								; this code.
               	
-854D: 01087B  			ld 		bc,EditBuffer 						; now process it.
-8550:         	__COMCBTag:
-8550: 0A      			ld 		a,(bc) 								; look at the first word
-8551: FEFF    			cp 		$FF 								; reached the end ?
-8553: 2022    			jr 		nz,__COMCBExit
+8554: 01087B  			ld 		bc,EditBuffer 						; now process it.
+8557:         	__COMCBTag:
+8557: 0A      			ld 		a,(bc) 								; look at the first word
+8558: FEFF    			cp 		$FF 								; reached the end ?
+855A: 2828    			jr 		z,__COMCBExit
               	
-8555: 0A      			ld 		a,(bc)
-8556: FE82    			cp 		$82 								; red (defining word)
-8558: CC7D85  			call 	z,COMDefinition_Red
-855B: FE83    			cp 		$83 								; magenta (variable word)
-855D: CC7E85  			call 	z,COMDefinition_Magenta	
-8560: FE84    			cp 		$84 								; green (compile) word
-8562: CC7F85  			call 	z,COMCompileWord_Green
-8565: FE85    			cp 		$85 								; cyan (compile) word
-8567: CC8085  			call 	z,COMCompileWord_Cyan
-856A: FE86    			cp 		$86 								; yellow (execute) word
-856C: CC8185  			call 	z,COMExecuteWord_Yellow
-856F:         	__COMCBNext: 										; go to the next tag/end (bit 7 set)
-856F: 03      			inc 	bc
-8570: 0A      			ld 		a,(bc)
-8571: CB7F    			bit 	7,a
-8573: 28FA    			jr 		z,__COMCBNext
-8575: 18D9    			jr 		__COMCBTag 								
+855C: 0A      			ld 		a,(bc)
+855D: FE82    			cp 		$82 								; red (defining word)
+855F: CC8A85  			call 	z,COMDefinition_Red
+8562: FE83    			cp 		$83 								; magenta (variable word)
+8564: CC8B85  			call 	z,COMDefinition_Magenta	
+8567: FE84    			cp 		$84 								; green (compile) word
+8569: CC8C85  			call 	z,COMCompileWord_Green
+856C: FE85    			cp 		$85 								; cyan (compile) word
+856E: CC8D85  			call 	z,COMCompileWord_Cyan
+8571: FE86    			cp 		$86 								; yellow (execute) word
+8573: CC8E85  			call 	z,COMExecuteWord_Yellow
+8576:         	__COMCBNext: 										; go to the next tag/end (bit 7 set)
+8576: 03      			inc 	bc
+8577: 0A      			ld 		a,(bc)
+8578: CB7F    			bit 	7,a
+857A: 28FA    			jr 		z,__COMCBNext
+857C: 18D9    			jr 		__COMCBTag 								
               	
-8577:         	__COMCBExit:
-8577: DDF9    			ld 		sp,ix
-8579: D1      			pop 	de 									; make the stack uncached again.
-857A:         	__COMCBOut:
-857A: C30000  			jp 		$0000
+857E:         	__COMCBError: 										; error, come here.
+857E: C5      			push 	bc
+857F: E1      			pop 	hl
+8580: 23      			inc 	hl 									; skip over tag.
+8581: C31E80  			jp 		ErrorHandler
               	
-857D:         	COMDefinition_Red:
-857D: C9      			ret
+8584:         	__COMCBExit:
+8584: DDF9    			ld 		sp,ix
+8586: D1      			pop 	de 									; make the stack uncached again.
+8587:         	__COMCBOut:
+8587: C30000  			jp 		$0000
               	
-857E:         	COMDefinition_Magenta:
-857E: C9      			ret
+              	; ***************************************************************************************
+              	;
+              	;		Red words. Create a definition at this point, and compile the preamble.
+              	;
+              	; ***************************************************************************************
               	
-857F:         	COMCompileWord_Green:
-857F: C9      			ret
+858A:         	COMDefinition_Red:
+858A: C9      			ret
               	
-8580:         	COMCompileWord_Cyan:
-8580: C9      			ret
+              	; ***************************************************************************************
+              	;
+              	;	 	Magenta words. Variables (that don't autoupdate the source). Create a definition
+              	;	 	and follow it with a call to the code to push the address on the stack, and 
+              	;		data space.
+              	;
+              	; ***************************************************************************************
               	
-8581:         	COMExecuteWord_Yellow:
-8581: C9      			ret
+858B:         	COMDefinition_Magenta:
+858B: C9      			ret
+              	
+              	; ***************************************************************************************
+              	;
+              	;		Green words. If in the Macro dictionary, execute it. If in the Forth dictionary
+              	; 		compile it. If it's a number, compile the code for it.
+              	;
+              	; ***************************************************************************************
+              	
+858C:         	COMCompileWord_Green:
+858C: C9      			ret
+              	
+              	; ***************************************************************************************
+              	;
+              	;		Cyan words. If in the Macro dictionary, compile it. Included for compatibility
+              	;		(probably)
+              	;
+              	; ***************************************************************************************
+              	
+858D:         	COMCompileWord_Cyan:
+858D: C9      			ret
+              	
+              	; ***************************************************************************************
+              	;
+              	;		Yellow words. If in the execute dictionary, execute them, using the cached
+              	;		stack in IX. If a number, push that number on the cached stack at IX.
+              	;
+              	; ***************************************************************************************
+              	
+858E:         	COMExecuteWord_Yellow:
+858E: C9      			ret
+              	
+              	; ***************************************************************************************
+              	;
+              	;						Compile code to call function at A:HL
+              	;
+              	; ***************************************************************************************
+              	
+858F:         	COMW_CompileCalltoAHL:
+              			;
+              			; TODO: if call to >$C000 and here.page != E then paged call
+              			;
+858F: 3ECD    			ld 		a,$CD
+8591: CD6480  			call 	FARCompileByte
+8594: CD7C80  			call 	FARCompileWord
+8597: C9      			ret
+              	
+              	; ***************************************************************************************
+              	;
+              	;					 Compile code to push constant HL on the stack
+              	;
+              	; ***************************************************************************************
+              	
+8598:         	COMW_CompileConstantHL:
+8598: 3ED5    			ld 		a,$D5
+859A: CD6480  			call 	FARCompileByte
+859D: 3E11    			ld 		a,$11
+859F: CD6480  			call 	FARCompileByte
+85A2: CD7C80  			call 	FARCompileWord
+85A5: C9      			ret
+              	
+              	; ***************************************************************************************
+              	;
+              	;				Call the routine at A:HL using IX as the (uncached) stack.
+              	;							This one belongs to the Compiler Code
+              	;
+              	; ***************************************************************************************
+              	
+85A6:         	COMW_CallRoutineAtAHL:
+85A6: ED73188B			ld 		(COMStackTemp),sp 					; save the stack pointer
+85AA: CD3480  			call 	PAGESwitch 							; switch to page A
+              	
+85AD: DDF9    			ld 		sp,ix 								; now back with the data stack
+85AF: D1      			pop 	de 									; make it cached (e.g. DE = TOS)
+              	
+85B0: CDD385  			call 	__COMW_CallHL 						; call the routine
+              	
+85B3: D5      			push 	de 									; make it uncached (all values on stack)
+85B4: DD210000			ld 		ix,$0000 							; put it back in IX
+85B8: DD39    			add 	ix,sp
+              	
+85BA: CD4D80  			call 	PAGERestore 						; restore the page
+85BD: ED7B188B			ld 		sp,(COMStackTemp) 					; and the stack pointer.
+85C1: C9      			ret
+              	
+              	; ***************************************************************************************
+              	;
+              	;				Call the routine at A:HL with cached stack state. Used by CLI
+              	;
+              	; ***************************************************************************************
+              	
+85C2:         	COMW_CallRoutineAtAHL_ConsoleVersion:
+85C2: C1      			pop 	bc 									; return address. makes stack right
+85C3: ED43D185			ld 		(__COMW_CVOut+1),bc
+85C7: CD3480  			call 	PAGESwitch 							; switch to that page.
+85CA: CDD385  			call 	__COMW_CallHL 						; call the routine to call (HL)
+85CD: CD4D80  			call 	PAGERestore 						; fix the page back up
+85D0:         	__COMW_CVOut:
+85D0: C30000  			jp 		$0000
+              	
+              	;
+              	;		Helper function, calling this effectively does CALL (HL)
+              	;
+85D3:         	__COMW_CallHL:
+85D3: E9      			jp 		(hl) 
+              			
               					
               			include "temp/__words.asm" 					; and the actual words
               	;
@@ -1452,151 +1577,151 @@
               	
               	; @forth[ix]   *
               	
-8582:         	cforth_2a_forth:
-8582: DDE1    	    pop ix
-8584:         	cforth_2a_start:
-8584: E1      	  pop  hl
-8585: CDC280  	  call  MULTMultiply16        ; HL := HL * DE
-8588: EB      	  ex   de,hl
+85D4:         	cforth_2a_forth:
+85D4: DDE1    	    pop ix
+85D6:         	cforth_2a_start:
+85D6: E1      	  pop  hl
+85D7: CDC280  	  call  MULTMultiply16        ; HL := HL * DE
+85DA: EB      	  ex   de,hl
               	
               	; @end
               	
-8589:         	cforth_2a_end:
-8589: DDE9    	    jp (ix)
+85DB:         	cforth_2a_end:
+85DB: DDE9    	    jp (ix)
               	
               	; *********************************************************************************
               	
               	
               	; @forth[ix]   /
               	
-858B:         	cforth_2f_forth:
-858B: DDE1    	    pop ix
-858D:         	cforth_2f_start:
-858D: E1      	  pop  hl
-858E: CD9780  	  call  DIVDivideMod16       ; DE := DE/HL HL = DE%HL
+85DD:         	cforth_2f_forth:
+85DD: DDE1    	    pop ix
+85DF:         	cforth_2f_start:
+85DF: E1      	  pop  hl
+85E0: CD9780  	  call  DIVDivideMod16       ; DE := DE/HL HL = DE%HL
               	
               	; @end
               	
-8591:         	cforth_2f_end:
-8591: DDE9    	    jp (ix)
+85E3:         	cforth_2f_end:
+85E3: DDE9    	    jp (ix)
               	
               	; *********************************************************************************
               	
               	
               	; @forth[ix]   mod
               	
-8593:         	cforth_6d_6f_64_forth:
-8593: DDE1    	    pop ix
-8595:         	cforth_6d_6f_64_start:
-8595: E1      	  pop  hl
-8596: CD9780  	  call  DIVDivideMod16       ; DE := DE/HL HL = DE%HL
-8599: EB      	  ex   de,hl
+85E5:         	cforth_6d_6f_64_forth:
+85E5: DDE1    	    pop ix
+85E7:         	cforth_6d_6f_64_start:
+85E7: E1      	  pop  hl
+85E8: CD9780  	  call  DIVDivideMod16       ; DE := DE/HL HL = DE%HL
+85EB: EB      	  ex   de,hl
               	
               	; @end
               	
-859A:         	cforth_6d_6f_64_end:
-859A: DDE9    	    jp (ix)
+85EC:         	cforth_6d_6f_64_end:
+85EC: DDE9    	    jp (ix)
               	
               	; *********************************************************************************
               	
               	
               	; @forth[ix]   /mod
               	
-859C:         	cforth_2f_6d_6f_64_forth:
-859C: DDE1    	    pop ix
-859E:         	cforth_2f_6d_6f_64_start:
-859E: E1      	  pop  hl
-859F: CD9780  	  call  DIVDivideMod16       ; DE := DE/HL HL = DE%HL
-85A2: E5      	  push  hl
+85EE:         	cforth_2f_6d_6f_64_forth:
+85EE: DDE1    	    pop ix
+85F0:         	cforth_2f_6d_6f_64_start:
+85F0: E1      	  pop  hl
+85F1: CD9780  	  call  DIVDivideMod16       ; DE := DE/HL HL = DE%HL
+85F4: E5      	  push  hl
               	
               	; @end
               	
-85A3:         	cforth_2f_6d_6f_64_end:
-85A3: DDE9    	    jp (ix)
+85F5:         	cforth_2f_6d_6f_64_end:
+85F5: DDE9    	    jp (ix)
               	
               	; *********************************************************************************
               	
               	
               	; @macro[ix] +
               	
-85A5:         	cforth_2b_forth:
-85A5: DDE1    	    pop ix
-85A7:         	cforth_2b_start:
-85A7: E1      	  pop  hl
-85A8: 19      	  add  hl,de
-85A9: EB      	  ex   de,hl
+85F7:         	cforth_2b_forth:
+85F7: DDE1    	    pop ix
+85F9:         	cforth_2b_start:
+85F9: E1      	  pop  hl
+85FA: 19      	  add  hl,de
+85FB: EB      	  ex   de,hl
               	
               	; @end
               	
-85AA:         	cforth_2b_end:
-85AA: DDE9    	    jp (ix)
-85AC:         	cforth_2b_macro:
-85AC: 0603    	    ld b,cforth_2b_end-cforth_2b_start
-85AE: 21A785  	    ld hl,cforth_2b_start
-85B1: C3CF83  	    jp MacroExpand
+85FC:         	cforth_2b_end:
+85FC: DDE9    	    jp (ix)
+85FE:         	cforth_2b_macro:
+85FE: 0603    	    ld b,cforth_2b_end-cforth_2b_start
+8600: 21F985  	    ld hl,cforth_2b_start
+8603: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @forth[hl]  and
               	
-85B4:         	cforth_61_6e_64_forth:
-85B4: E1      	    pop hl
-85B5:         	cforth_61_6e_64_start:
-85B5: C1      	  pop  bc
-85B6: 7B      	  ld   a,e
-85B7: A1      	  and  c
-85B8: 5F      	  ld   e,a
-85B9: 7A      	  ld   a,d
-85BA: A0      	  and  b
-85BB: 57      	  ld   d,a
+8606:         	cforth_61_6e_64_forth:
+8606: E1      	    pop hl
+8607:         	cforth_61_6e_64_start:
+8607: C1      	  pop  bc
+8608: 7B      	  ld   a,e
+8609: A1      	  and  c
+860A: 5F      	  ld   e,a
+860B: 7A      	  ld   a,d
+860C: A0      	  and  b
+860D: 57      	  ld   d,a
               	
               	; @end
               	
-85BC:         	cforth_61_6e_64_end:
-85BC: E9      	    jp (hl)
+860E:         	cforth_61_6e_64_end:
+860E: E9      	    jp (hl)
               	
               	; *********************************************************************************
               	
               	
               	; @forth[hl]  or
               	
-85BD:         	cforth_6f_72_forth:
-85BD: E1      	    pop hl
-85BE:         	cforth_6f_72_start:
-85BE: C1      	  pop  bc
-85BF: 7B      	  ld   a,e
-85C0: A9      	  xor  c
-85C1: 5F      	  ld   e,a
-85C2: 7A      	  ld   a,d
-85C3: A8      	  xor  b
-85C4: 57      	  ld   d,a
+860F:         	cforth_6f_72_forth:
+860F: E1      	    pop hl
+8610:         	cforth_6f_72_start:
+8610: C1      	  pop  bc
+8611: 7B      	  ld   a,e
+8612: A9      	  xor  c
+8613: 5F      	  ld   e,a
+8614: 7A      	  ld   a,d
+8615: A8      	  xor  b
+8616: 57      	  ld   d,a
               	
               	; @end
               	
-85C5:         	cforth_6f_72_end:
-85C5: E9      	    jp (hl)
+8617:         	cforth_6f_72_end:
+8617: E9      	    jp (hl)
               	
               	; *********************************************************************************
               	
               	
               	; @forth[hl]  +or
               	
-85C6:         	cforth_2b_6f_72_forth:
-85C6: E1      	    pop hl
-85C7:         	cforth_2b_6f_72_start:
-85C7: C1      	  pop  bc
-85C8: 7B      	  ld   a,e
-85C9: B1      	  or   c
-85CA: 5F      	  ld   e,a
-85CB: 7A      	  ld   a,d
-85CC: B0      	  or   b
-85CD: 57      	  ld   d,a
+8618:         	cforth_2b_6f_72_forth:
+8618: E1      	    pop hl
+8619:         	cforth_2b_6f_72_start:
+8619: C1      	  pop  bc
+861A: 7B      	  ld   a,e
+861B: B1      	  or   c
+861C: 5F      	  ld   e,a
+861D: 7A      	  ld   a,d
+861E: B0      	  or   b
+861F: 57      	  ld   d,a
               	
               	; @end
               	
-85CE:         	cforth_2b_6f_72_end:
-85CE: E9      	    jp (hl)
+8620:         	cforth_2b_6f_72_end:
+8620: E9      	    jp (hl)
               	
               	; ***************************************************************************************
               	; ***************************************************************************************
@@ -1612,39 +1737,39 @@
               	
               	; @word[ix] less
               	
-85CF:         	cforth_6c_65_73_73_forth:
-85CF: DDE1    	    pop ix
-85D1:         	cforth_6c_65_73_73_start:
-85D1: E1      	  pop  hl
-85D2: EB      	  ex   de,hl
-85D3: 7A      	  ld   a,d      ; this is calculating true if B < A e.g. 4 7 <
-85D4: AC      	  xor  h
-85D5: 87      	  add  a,a      ; if the signs are different, check those.
-85D6: 380C    	  jr   c,__LessDifferentSigns
+8621:         	cforth_6c_65_73_73_forth:
+8621: DDE1    	    pop ix
+8623:         	cforth_6c_65_73_73_start:
+8623: E1      	  pop  hl
+8624: EB      	  ex   de,hl
+8625: 7A      	  ld   a,d      ; this is calculating true if B < A e.g. 4 7 <
+8626: AC      	  xor  h
+8627: 87      	  add  a,a      ; if the signs are different, check those.
+8628: 380C    	  jr   c,__LessDifferentSigns
               	
-85D8: D5      	  push  de
-85D9: EB      	  ex   de,hl      ; want to do B-A
-85DA: ED52    	  sbc  hl,de      ; carry set if B-A < 0 e.g. B < A
-85DC: D1      	  pop  de
-85DD: 3809    	  jr   c,__LessTrue
+862A: D5      	  push  de
+862B: EB      	  ex   de,hl      ; want to do B-A
+862C: ED52    	  sbc  hl,de      ; carry set if B-A < 0 e.g. B < A
+862E: D1      	  pop  de
+862F: 3809    	  jr   c,__LessTrue
               	
-85DF:         	__LessFalse:
-85DF: 110000  	  ld   de,$0000
-85E2: 1807    	  jr   __LessExit
+8631:         	__LessFalse:
+8631: 110000  	  ld   de,$0000
+8634: 1807    	  jr   __LessExit
               	
-85E4:         	__LessDifferentSigns:
-85E4: CB7A    	  bit  7,d      ; if B is +ve then B must be > A
-85E6: 28F7    	  jr   z,__LessFalse
+8636:         	__LessDifferentSigns:
+8636: CB7A    	  bit  7,d      ; if B is +ve then B must be > A
+8638: 28F7    	  jr   z,__LessFalse
               	
-85E8:         	__LessTrue:
-85E8: 11FFFF  	  ld   de,$FFFF
-85EB:         	__LessExit:
+863A:         	__LessTrue:
+863A: 11FFFF  	  ld   de,$FFFF
+863D:         	__LessExit:
               	
               	
               	; @end
               	
-85EB:         	cforth_6c_65_73_73_end:
-85EB: DDE9    	    jp (ix)
+863D:         	cforth_6c_65_73_73_end:
+863D: DDE9    	    jp (ix)
               	; ***************************************************************************************
               	; ***************************************************************************************
               	;
@@ -1659,49 +1784,49 @@
               	
               	; @word[hl] screen.mode
               	
-85ED:         	cforth_73_63_72_65_65_6e_2e_6d_6f_64_65_forth:
-85ED: E1      	    pop hl
-85EE:         	cforth_73_63_72_65_65_6e_2e_6d_6f_64_65_start:
-85EE: 7B      	  ld   a,e
-85EF: CDE680  	  call GFXMode
-85F2: D1      	  pop  de
+863F:         	cforth_73_63_72_65_65_6e_2e_6d_6f_64_65_forth:
+863F: E1      	    pop hl
+8640:         	cforth_73_63_72_65_65_6e_2e_6d_6f_64_65_start:
+8640: 7B      	  ld   a,e
+8641: CDE680  	  call GFXMode
+8644: D1      	  pop  de
               	
               	; @end
               	
-85F3:         	cforth_73_63_72_65_65_6e_2e_6d_6f_64_65_end:
-85F3: E9      	    jp (hl)
+8645:         	cforth_73_63_72_65_65_6e_2e_6d_6f_64_65_end:
+8645: E9      	    jp (hl)
               	
               	; ***************************************************************************************
               	
               	
               	; @word[ret] screen.clear
               	
-85F4:         	cforth_73_63_72_65_65_6e_2e_63_6c_65_61_72_forth:
-85F4:         	cforth_73_63_72_65_65_6e_2e_63_6c_65_61_72_start:
-85F4: CDDC80  	  call GFXClearScreen
+8646:         	cforth_73_63_72_65_65_6e_2e_63_6c_65_61_72_forth:
+8646:         	cforth_73_63_72_65_65_6e_2e_63_6c_65_61_72_start:
+8646: CDDC80  	  call GFXClearScreen
               	
               	; @end
               	
-85F7:         	cforth_73_63_72_65_65_6e_2e_63_6c_65_61_72_end:
-85F7: C9      	    ret
+8649:         	cforth_73_63_72_65_65_6e_2e_63_6c_65_61_72_end:
+8649: C9      	    ret
               	
               	; ***************************************************************************************
               	
               	
               	; @word[ix] screen!
               	
-85F8:         	cforth_73_63_72_65_65_6e_21_forth:
-85F8: DDE1    	    pop ix
-85FA:         	cforth_73_63_72_65_65_6e_21_start:
-85FA: EB      	  ex   de,hl        ; TOS (address) in HL
-85FB: D1      	  pop  de         ; data in DE
-85FC: CD1B81  	  call  GFXWriteCharacter     ; display it
-85FF: D1      	  pop  de         ; fix up stack
+864A:         	cforth_73_63_72_65_65_6e_21_forth:
+864A: DDE1    	    pop ix
+864C:         	cforth_73_63_72_65_65_6e_21_start:
+864C: EB      	  ex   de,hl        ; TOS (address) in HL
+864D: D1      	  pop  de         ; data in DE
+864E: CD1B81  	  call  GFXWriteCharacter     ; display it
+8651: D1      	  pop  de         ; fix up stack
               	
               	; @end
               	
-8600:         	cforth_73_63_72_65_65_6e_21_end:
-8600: DDE9    	    jp (ix)
+8652:         	cforth_73_63_72_65_65_6e_21_end:
+8652: DDE9    	    jp (ix)
               	
               	; ***************************************************************************************
               	; ***************************************************************************************
@@ -1717,255 +1842,255 @@
               	
               	; @macro[ix] @
               	
-8602:         	cforth_40_forth:
-8602: DDE1    	    pop ix
-8604:         	cforth_40_start:
-8604: EB      	  ex   de,hl
-8605: 5E      	  ld   e,(hl)
-8606: 23      	  inc  hl
-8607: 56      	  ld   d,(hl)
+8654:         	cforth_40_forth:
+8654: DDE1    	    pop ix
+8656:         	cforth_40_start:
+8656: EB      	  ex   de,hl
+8657: 5E      	  ld   e,(hl)
+8658: 23      	  inc  hl
+8659: 56      	  ld   d,(hl)
               	
               	; @end
               	
-8608:         	cforth_40_end:
-8608: DDE9    	    jp (ix)
-860A:         	cforth_40_macro:
-860A: 0604    	    ld b,cforth_40_end-cforth_40_start
-860C: 210486  	    ld hl,cforth_40_start
-860F: C3CF83  	    jp MacroExpand
+865A:         	cforth_40_end:
+865A: DDE9    	    jp (ix)
+865C:         	cforth_40_macro:
+865C: 0604    	    ld b,cforth_40_end-cforth_40_start
+865E: 215686  	    ld hl,cforth_40_start
+8661: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[hl] c@
               	
-8612:         	cforth_63_40_forth:
-8612: E1      	    pop hl
-8613:         	cforth_63_40_start:
-8613: 1A      	  ld   a,(de)
-8614: 5F      	  ld   e,a
-8615: 1600    	  ld   d,0
+8664:         	cforth_63_40_forth:
+8664: E1      	    pop hl
+8665:         	cforth_63_40_start:
+8665: 1A      	  ld   a,(de)
+8666: 5F      	  ld   e,a
+8667: 1600    	  ld   d,0
               	
               	; @end
               	
-8617:         	cforth_63_40_end:
-8617: E9      	    jp (hl)
-8618:         	cforth_63_40_macro:
-8618: 0604    	    ld b,cforth_63_40_end-cforth_63_40_start
-861A: 211386  	    ld hl,cforth_63_40_start
-861D: C3CF83  	    jp MacroExpand
+8669:         	cforth_63_40_end:
+8669: E9      	    jp (hl)
+866A:         	cforth_63_40_macro:
+866A: 0604    	    ld b,cforth_63_40_end-cforth_63_40_start
+866C: 216586  	    ld hl,cforth_63_40_start
+866F: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[ix] c!
               	
-8620:         	cforth_63_21_forth:
-8620: DDE1    	    pop ix
-8622:         	cforth_63_21_start:
-8622: E1      	  pop  hl
-8623: 7D      	  ld   a,l
-8624: 12      	  ld   (de),a
-8625: D1      	  pop  de
+8672:         	cforth_63_21_forth:
+8672: DDE1    	    pop ix
+8674:         	cforth_63_21_start:
+8674: E1      	  pop  hl
+8675: 7D      	  ld   a,l
+8676: 12      	  ld   (de),a
+8677: D1      	  pop  de
               	
               	; @end
               	
-8626:         	cforth_63_21_end:
-8626: DDE9    	    jp (ix)
-8628:         	cforth_63_21_macro:
-8628: 0604    	    ld b,cforth_63_21_end-cforth_63_21_start
-862A: 212286  	    ld hl,cforth_63_21_start
-862D: C3CF83  	    jp MacroExpand
+8678:         	cforth_63_21_end:
+8678: DDE9    	    jp (ix)
+867A:         	cforth_63_21_macro:
+867A: 0604    	    ld b,cforth_63_21_end-cforth_63_21_start
+867C: 217486  	    ld hl,cforth_63_21_start
+867F: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[ix] !
               	
-8630:         	cforth_21_forth:
-8630: DDE1    	    pop ix
-8632:         	cforth_21_start:
-8632: E1      	  pop  hl
-8633: 73      	  ld   (hl),e
-8634: 23      	  inc  hl
-8635: 72      	  ld   (hl),d
-8636: D1      	  pop  de
+8682:         	cforth_21_forth:
+8682: DDE1    	    pop ix
+8684:         	cforth_21_start:
+8684: E1      	  pop  hl
+8685: 73      	  ld   (hl),e
+8686: 23      	  inc  hl
+8687: 72      	  ld   (hl),d
+8688: D1      	  pop  de
               	
               	; @end
               	
-8637:         	cforth_21_end:
-8637: DDE9    	    jp (ix)
-8639:         	cforth_21_macro:
-8639: 0605    	    ld b,cforth_21_end-cforth_21_start
-863B: 213286  	    ld hl,cforth_21_start
-863E: C3CF83  	    jp MacroExpand
+8689:         	cforth_21_end:
+8689: DDE9    	    jp (ix)
+868B:         	cforth_21_macro:
+868B: 0605    	    ld b,cforth_21_end-cforth_21_start
+868D: 218486  	    ld hl,cforth_21_start
+8690: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @forth[ix] +!
               	
-8641:         	cforth_2b_21_forth:
-8641: DDE1    	    pop ix
-8643:         	cforth_2b_21_start:
-8643: E1      	  pop  hl      ; address in DE, get data in HL
-8644: EB      	  ex   de,hl     ; address in HL, data in E
-8645: 7E      	  ld   a,(hl)
-8646: 83      	  add  a,e
-8647: 77      	  ld   (hl),a
-8648: 23      	  inc  hl
-8649: 7E      	  ld   a,(hl)
-864A: 8A      	  adc  a,d
-864B: 77      	  ld   (hl),a
-864C: D1      	  pop  de
+8693:         	cforth_2b_21_forth:
+8693: DDE1    	    pop ix
+8695:         	cforth_2b_21_start:
+8695: E1      	  pop  hl      ; address in DE, get data in HL
+8696: EB      	  ex   de,hl     ; address in HL, data in E
+8697: 7E      	  ld   a,(hl)
+8698: 83      	  add  a,e
+8699: 77      	  ld   (hl),a
+869A: 23      	  inc  hl
+869B: 7E      	  ld   a,(hl)
+869C: 8A      	  adc  a,d
+869D: 77      	  ld   (hl),a
+869E: D1      	  pop  de
               	
               	; @end
               	
-864D:         	cforth_2b_21_end:
-864D: DDE9    	    jp (ix)
+869F:         	cforth_2b_21_end:
+869F: DDE9    	    jp (ix)
               	
               	; *********************************************************************************
               	
               	
               	; @forth[ix] or!
               	
-864F:         	cforth_6f_72_21_forth:
-864F: DDE1    	    pop ix
-8651:         	cforth_6f_72_21_start:
-8651: E1      	  pop  hl
-8652: 7E      	  ld   a,(hl)
-8653: B3      	  or   e
-8654: 77      	  ld   (hl),a
-8655: 23      	  inc  hl
-8656: 7E      	  ld   a,(hl)
-8657: B2      	  or   d
-8658: 77      	  ld   (hl),a
-8659: D1      	  pop  de
+86A1:         	cforth_6f_72_21_forth:
+86A1: DDE1    	    pop ix
+86A3:         	cforth_6f_72_21_start:
+86A3: E1      	  pop  hl
+86A4: 7E      	  ld   a,(hl)
+86A5: B3      	  or   e
+86A6: 77      	  ld   (hl),a
+86A7: 23      	  inc  hl
+86A8: 7E      	  ld   a,(hl)
+86A9: B2      	  or   d
+86AA: 77      	  ld   (hl),a
+86AB: D1      	  pop  de
               	
               	; @end
               	
-865A:         	cforth_6f_72_21_end:
-865A: DDE9    	    jp (ix)
+86AC:         	cforth_6f_72_21_end:
+86AC: DDE9    	    jp (ix)
               	
               	; *********************************************************************************
               	
               	
               	; @forth[ix] fill
               	
-865C:         	cforth_66_69_6c_6c_forth:
-865C: DDE1    	    pop ix
-865E:         	cforth_66_69_6c_6c_start:
+86AE:         	cforth_66_69_6c_6c_forth:
+86AE: DDE1    	    pop ix
+86B0:         	cforth_66_69_6c_6c_start:
               	          ; called as <byte> <address> <count> fill
-865E: E1      	  pop  hl       ; top is count (DE) 2nd address (HL) 3rd value (BC)
-865F: C1      	  pop  bc
-8660: 7A      	  ld   a,d
-8661: B3      	  or   e
-8662: 2807    	  jr   z,__fill2
+86B0: E1      	  pop  hl       ; top is count (DE) 2nd address (HL) 3rd value (BC)
+86B1: C1      	  pop  bc
+86B2: 7A      	  ld   a,d
+86B3: B3      	  or   e
+86B4: 2807    	  jr   z,__fill2
               	
-8664: 71      	__fill1:ld   (hl),c
-8665: 23      	  inc  hl
-8666: 0B      	  dec  bc
-8667: 7A      	  ld   a,d
-8668: B3      	  or   e
-8669: 20F9    	  jr   nz,__fill1
-866B:         	__fill2:
-866B: D1      	  pop  de
+86B6: 71      	__fill1:ld   (hl),c
+86B7: 23      	  inc  hl
+86B8: 0B      	  dec  bc
+86B9: 7A      	  ld   a,d
+86BA: B3      	  or   e
+86BB: 20F9    	  jr   nz,__fill1
+86BD:         	__fill2:
+86BD: D1      	  pop  de
               	
               	; @end
               	
-866C:         	cforth_66_69_6c_6c_end:
-866C: DDE9    	    jp (ix)
+86BE:         	cforth_66_69_6c_6c_end:
+86BE: DDE9    	    jp (ix)
               	
               	; *********************************************************************************
               	
               	
               	; @forth[ix] move
               	
-866E:         	cforth_6d_6f_76_65_forth:
-866E: DDE1    	    pop ix
-8670:         	cforth_6d_6f_76_65_start:
+86C0:         	cforth_6d_6f_76_65_forth:
+86C0: DDE1    	    pop ix
+86C2:         	cforth_6d_6f_76_65_start:
               	             ; source destination count move
               	
-8670: 42      	  ld   b,d         ; top is count (BC)
-8671: 4B      	  ld   c,e
-8672: E1      	  pop  hl          ; 2nd is target (HL)
-8673: D1      	  pop  de          ; 3rd is source (DE)
+86C2: 42      	  ld   b,d         ; top is count (BC)
+86C3: 4B      	  ld   c,e
+86C4: E1      	  pop  hl          ; 2nd is target (HL)
+86C5: D1      	  pop  de          ; 3rd is source (DE)
               	
-8674: 78      	  ld   a,b
-8675: B1      	  or   c
-8676: 2815    	  jr   z,__move2
+86C6: 78      	  ld   a,b
+86C7: B1      	  or   c
+86C8: 2815    	  jr   z,__move2
               	
-8678: AF      	  xor  a          ; find direction.
-8679: ED52    	  sbc  hl,de
-867B: 7C      	  ld   a,h
-867C: 19      	  add  hl,de
-867D: CB7F    	  bit  7,a         ; if +ve use LDDR
-867F: 2805    	  jr   z,__move3
+86CA: AF      	  xor  a          ; find direction.
+86CB: ED52    	  sbc  hl,de
+86CD: 7C      	  ld   a,h
+86CE: 19      	  add  hl,de
+86CF: CB7F    	  bit  7,a         ; if +ve use LDDR
+86D1: 2805    	  jr   z,__move3
               	
-8681: EB      	  ex   de,hl         ; LDIR etc do (DE) <- (HL)
-8682: EDB0    	  ldir
-8684: 1807    	  jr   __move2
+86D3: EB      	  ex   de,hl         ; LDIR etc do (DE) <- (HL)
+86D4: EDB0    	  ldir
+86D6: 1807    	  jr   __move2
               	
-8686:         	__move3:
-8686: 09      	  add  hl,bc         ; add length to HL,DE, swap as LDDR does (DE) <- (HL)
-8687: EB      	  ex   de,hl
-8688: 09      	  add  hl,bc
-8689: 1B      	  dec  de          ; -1 to point to last byte
-868A: 2B      	  dec  hl
-868B: EDB8    	  lddr
+86D8:         	__move3:
+86D8: 09      	  add  hl,bc         ; add length to HL,DE, swap as LDDR does (DE) <- (HL)
+86D9: EB      	  ex   de,hl
+86DA: 09      	  add  hl,bc
+86DB: 1B      	  dec  de          ; -1 to point to last byte
+86DC: 2B      	  dec  hl
+86DD: EDB8    	  lddr
               	
-868D:         	__move2:
-868D: D1      	  pop  de
+86DF:         	__move2:
+86DF: D1      	  pop  de
               	
               	; @end
               	
-868E:         	cforth_6d_6f_76_65_end:
-868E: DDE9    	    jp (ix)
+86E0:         	cforth_6d_6f_76_65_end:
+86E0: DDE9    	    jp (ix)
               	
               	; *********************************************************************************
               	
               	
               	; @macro[hl] p@
               	
-8690:         	cforth_70_40_forth:
-8690: E1      	    pop hl
-8691:         	cforth_70_40_start:
-8691: 42      	  ld   b,d
-8692: 4B      	  ld   c,e
-8693: ED58    	  in   e,(c)
-8695: 1600    	  ld   d,0
+86E2:         	cforth_70_40_forth:
+86E2: E1      	    pop hl
+86E3:         	cforth_70_40_start:
+86E3: 42      	  ld   b,d
+86E4: 4B      	  ld   c,e
+86E5: ED58    	  in   e,(c)
+86E7: 1600    	  ld   d,0
               	
               	; @end
               	
-8697:         	cforth_70_40_end:
-8697: E9      	    jp (hl)
-8698:         	cforth_70_40_macro:
-8698: 0606    	    ld b,cforth_70_40_end-cforth_70_40_start
-869A: 219186  	    ld hl,cforth_70_40_start
-869D: C3CF83  	    jp MacroExpand
+86E9:         	cforth_70_40_end:
+86E9: E9      	    jp (hl)
+86EA:         	cforth_70_40_macro:
+86EA: 0606    	    ld b,cforth_70_40_end-cforth_70_40_start
+86EC: 21E386  	    ld hl,cforth_70_40_start
+86EF: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[hl] p!
               	
-86A0:         	cforth_70_21_forth:
-86A0: E1      	    pop hl
-86A1:         	cforth_70_21_start:
-86A1: 42      	  ld   b,d
-86A2: 4B      	  ld   c,e
-86A3: D1      	  pop  de
-86A4: ED59    	  out  (c),e
-86A6: D1      	  pop  de
+86F2:         	cforth_70_21_forth:
+86F2: E1      	    pop hl
+86F3:         	cforth_70_21_start:
+86F3: 42      	  ld   b,d
+86F4: 4B      	  ld   c,e
+86F5: D1      	  pop  de
+86F6: ED59    	  out  (c),e
+86F8: D1      	  pop  de
               	
               	; @end
               	
-86A7:         	cforth_70_21_end:
-86A7: E9      	    jp (hl)
-86A8:         	cforth_70_21_macro:
-86A8: 0606    	    ld b,cforth_70_21_end-cforth_70_21_start
-86AA: 21A186  	    ld hl,cforth_70_21_start
-86AD: C3CF83  	    jp MacroExpand
+86F9:         	cforth_70_21_end:
+86F9: E9      	    jp (hl)
+86FA:         	cforth_70_21_macro:
+86FA: 0606    	    ld b,cforth_70_21_end-cforth_70_21_start
+86FC: 21F386  	    ld hl,cforth_70_21_start
+86FF: C3CF83  	    jp MacroExpand
               	; ***************************************************************************************
               	; ***************************************************************************************
               	;
@@ -1980,99 +2105,99 @@
               	
               	; @macro[hl] drop
               	
-86B0:         	cforth_64_72_6f_70_forth:
-86B0: E1      	    pop hl
-86B1:         	cforth_64_72_6f_70_start:
-86B1: D1      	  pop  de
+8702:         	cforth_64_72_6f_70_forth:
+8702: E1      	    pop hl
+8703:         	cforth_64_72_6f_70_start:
+8703: D1      	  pop  de
               	
               	; @end
               	
-86B2:         	cforth_64_72_6f_70_end:
-86B2: E9      	    jp (hl)
-86B3:         	cforth_64_72_6f_70_macro:
-86B3: 0601    	    ld b,cforth_64_72_6f_70_end-cforth_64_72_6f_70_start
-86B5: 21B186  	    ld hl,cforth_64_72_6f_70_start
-86B8: C3CF83  	    jp MacroExpand
+8704:         	cforth_64_72_6f_70_end:
+8704: E9      	    jp (hl)
+8705:         	cforth_64_72_6f_70_macro:
+8705: 0601    	    ld b,cforth_64_72_6f_70_end-cforth_64_72_6f_70_start
+8707: 210387  	    ld hl,cforth_64_72_6f_70_start
+870A: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[hl] dup
               	
-86BB:         	cforth_64_75_70_forth:
-86BB: E1      	    pop hl
-86BC:         	cforth_64_75_70_start:
-86BC: D5      	  push  de
+870D:         	cforth_64_75_70_forth:
+870D: E1      	    pop hl
+870E:         	cforth_64_75_70_start:
+870E: D5      	  push  de
               	
               	; @end
               	
-86BD:         	cforth_64_75_70_end:
-86BD: E9      	    jp (hl)
-86BE:         	cforth_64_75_70_macro:
-86BE: 0601    	    ld b,cforth_64_75_70_end-cforth_64_75_70_start
-86C0: 21BC86  	    ld hl,cforth_64_75_70_start
-86C3: C3CF83  	    jp MacroExpand
+870F:         	cforth_64_75_70_end:
+870F: E9      	    jp (hl)
+8710:         	cforth_64_75_70_macro:
+8710: 0601    	    ld b,cforth_64_75_70_end-cforth_64_75_70_start
+8712: 210E87  	    ld hl,cforth_64_75_70_start
+8715: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[ix] nip
               	
-86C6:         	cforth_6e_69_70_forth:
-86C6: DDE1    	    pop ix
-86C8:         	cforth_6e_69_70_start:
-86C8: E1      	  pop  hl
+8718:         	cforth_6e_69_70_forth:
+8718: DDE1    	    pop ix
+871A:         	cforth_6e_69_70_start:
+871A: E1      	  pop  hl
               	
               	; @end
               	
-86C9:         	cforth_6e_69_70_end:
-86C9: DDE9    	    jp (ix)
-86CB:         	cforth_6e_69_70_macro:
-86CB: 0601    	    ld b,cforth_6e_69_70_end-cforth_6e_69_70_start
-86CD: 21C886  	    ld hl,cforth_6e_69_70_start
-86D0: C3CF83  	    jp MacroExpand
+871B:         	cforth_6e_69_70_end:
+871B: DDE9    	    jp (ix)
+871D:         	cforth_6e_69_70_macro:
+871D: 0601    	    ld b,cforth_6e_69_70_end-cforth_6e_69_70_start
+871F: 211A87  	    ld hl,cforth_6e_69_70_start
+8722: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[ix] over
               	
-86D3:         	cforth_6f_76_65_72_forth:
-86D3: DDE1    	    pop ix
-86D5:         	cforth_6f_76_65_72_start:
-86D5: E1      	  pop  hl
-86D6: D5      	  push  de
-86D7: EB      	  ex   de,hl
+8725:         	cforth_6f_76_65_72_forth:
+8725: DDE1    	    pop ix
+8727:         	cforth_6f_76_65_72_start:
+8727: E1      	  pop  hl
+8728: D5      	  push  de
+8729: EB      	  ex   de,hl
               	
               	; @end
               	
-86D8:         	cforth_6f_76_65_72_end:
-86D8: DDE9    	    jp (ix)
-86DA:         	cforth_6f_76_65_72_macro:
-86DA: 0603    	    ld b,cforth_6f_76_65_72_end-cforth_6f_76_65_72_start
-86DC: 21D586  	    ld hl,cforth_6f_76_65_72_start
-86DF: C3CF83  	    jp MacroExpand
+872A:         	cforth_6f_76_65_72_end:
+872A: DDE9    	    jp (ix)
+872C:         	cforth_6f_76_65_72_macro:
+872C: 0603    	    ld b,cforth_6f_76_65_72_end-cforth_6f_76_65_72_start
+872E: 212787  	    ld hl,cforth_6f_76_65_72_start
+8731: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[ix] swap
               	
-86E2:         	cforth_73_77_61_70_forth:
-86E2: DDE1    	    pop ix
-86E4:         	cforth_73_77_61_70_start:
-86E4: E1      	  pop  hl
-86E5: EB      	  ex   de,hl
-86E6: E5      	  push  hl
+8734:         	cforth_73_77_61_70_forth:
+8734: DDE1    	    pop ix
+8736:         	cforth_73_77_61_70_start:
+8736: E1      	  pop  hl
+8737: EB      	  ex   de,hl
+8738: E5      	  push  hl
               	
               	; @end
               	
-86E7:         	cforth_73_77_61_70_end:
-86E7: DDE9    	    jp (ix)
-86E9:         	cforth_73_77_61_70_macro:
-86E9: 0603    	    ld b,cforth_73_77_61_70_end-cforth_73_77_61_70_start
-86EB: 21E486  	    ld hl,cforth_73_77_61_70_start
-86EE: C3CF83  	    jp MacroExpand
+8739:         	cforth_73_77_61_70_end:
+8739: DDE9    	    jp (ix)
+873B:         	cforth_73_77_61_70_macro:
+873B: 0603    	    ld b,cforth_73_77_61_70_end-cforth_73_77_61_70_start
+873D: 213687  	    ld hl,cforth_73_77_61_70_start
+8740: C3CF83  	    jp MacroExpand
               	
               	; ***************************************************************************************
               	; ***************************************************************************************
@@ -2088,232 +2213,232 @@
               	
               	; @macro[ret] bswap
               	
-86F1:         	cforth_62_73_77_61_70_forth:
-86F1:         	cforth_62_73_77_61_70_start:
-86F1: 7A      	  ld   a,d
-86F2: 53      	  ld   d,e
-86F3: 5F      	  ld   e,a
+8743:         	cforth_62_73_77_61_70_forth:
+8743:         	cforth_62_73_77_61_70_start:
+8743: 7A      	  ld   a,d
+8744: 53      	  ld   d,e
+8745: 5F      	  ld   e,a
               	
               	; @end
               	
-86F4:         	cforth_62_73_77_61_70_end:
-86F4: C9      	    ret
-86F5:         	cforth_62_73_77_61_70_macro:
-86F5: 0603    	    ld b,cforth_62_73_77_61_70_end-cforth_62_73_77_61_70_start
-86F7: 21F186  	    ld hl,cforth_62_73_77_61_70_start
-86FA: C3CF83  	    jp MacroExpand
+8746:         	cforth_62_73_77_61_70_end:
+8746: C9      	    ret
+8747:         	cforth_62_73_77_61_70_macro:
+8747: 0603    	    ld b,cforth_62_73_77_61_70_end-cforth_62_73_77_61_70_start
+8749: 214387  	    ld hl,cforth_62_73_77_61_70_start
+874C: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[ret] 2*
               	
-86FD:         	cforth_32_2a_forth:
-86FD:         	cforth_32_2a_start:
-86FD: EB      	  ex   de,hl
-86FE: 29      	  add  hl,hl
-86FF: EB      	  ex   de,hl
+874F:         	cforth_32_2a_forth:
+874F:         	cforth_32_2a_start:
+874F: EB      	  ex   de,hl
+8750: 29      	  add  hl,hl
+8751: EB      	  ex   de,hl
               	
               	; @end
               	
-8700:         	cforth_32_2a_end:
-8700: C9      	    ret
-8701:         	cforth_32_2a_macro:
-8701: 0603    	    ld b,cforth_32_2a_end-cforth_32_2a_start
-8703: 21FD86  	    ld hl,cforth_32_2a_start
-8706: C3CF83  	    jp MacroExpand
+8752:         	cforth_32_2a_end:
+8752: C9      	    ret
+8753:         	cforth_32_2a_macro:
+8753: 0603    	    ld b,cforth_32_2a_end-cforth_32_2a_start
+8755: 214F87  	    ld hl,cforth_32_2a_start
+8758: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[ret] 2/
               	
-8709:         	cforth_32_2f_forth:
-8709:         	cforth_32_2f_start:
-8709: CB3A    	  srl  d
-870B: CB1B    	  rr   e
+875B:         	cforth_32_2f_forth:
+875B:         	cforth_32_2f_start:
+875B: CB3A    	  srl  d
+875D: CB1B    	  rr   e
               	
               	; @end
               	
-870D:         	cforth_32_2f_end:
-870D: C9      	    ret
-870E:         	cforth_32_2f_macro:
-870E: 0604    	    ld b,cforth_32_2f_end-cforth_32_2f_start
-8710: 210987  	    ld hl,cforth_32_2f_start
-8713: C3CF83  	    jp MacroExpand
+875F:         	cforth_32_2f_end:
+875F: C9      	    ret
+8760:         	cforth_32_2f_macro:
+8760: 0604    	    ld b,cforth_32_2f_end-cforth_32_2f_start
+8762: 215B87  	    ld hl,cforth_32_2f_start
+8765: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[ret] ++
               	
-8716:         	cforth_2b_2b_forth:
-8716:         	cforth_2b_2b_start:
-8716: 13      	  inc  de
+8768:         	cforth_2b_2b_forth:
+8768:         	cforth_2b_2b_start:
+8768: 13      	  inc  de
               	
               	; @end
               	
-8717:         	cforth_2b_2b_end:
-8717: C9      	    ret
-8718:         	cforth_2b_2b_macro:
-8718: 0601    	    ld b,cforth_2b_2b_end-cforth_2b_2b_start
-871A: 211687  	    ld hl,cforth_2b_2b_start
-871D: C3CF83  	    jp MacroExpand
+8769:         	cforth_2b_2b_end:
+8769: C9      	    ret
+876A:         	cforth_2b_2b_macro:
+876A: 0601    	    ld b,cforth_2b_2b_end-cforth_2b_2b_start
+876C: 216887  	    ld hl,cforth_2b_2b_start
+876F: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[ret] +++
               	
-8720:         	cforth_2b_2b_2b_forth:
-8720:         	cforth_2b_2b_2b_start:
-8720: 13      	  inc  de
-8721: 13      	  inc  de
+8772:         	cforth_2b_2b_2b_forth:
+8772:         	cforth_2b_2b_2b_start:
+8772: 13      	  inc  de
+8773: 13      	  inc  de
               	
               	; @end
               	
-8722:         	cforth_2b_2b_2b_end:
-8722: C9      	    ret
-8723:         	cforth_2b_2b_2b_macro:
-8723: 0602    	    ld b,cforth_2b_2b_2b_end-cforth_2b_2b_2b_start
-8725: 212087  	    ld hl,cforth_2b_2b_2b_start
-8728: C3CF83  	    jp MacroExpand
+8774:         	cforth_2b_2b_2b_end:
+8774: C9      	    ret
+8775:         	cforth_2b_2b_2b_macro:
+8775: 0602    	    ld b,cforth_2b_2b_2b_end-cforth_2b_2b_2b_start
+8777: 217287  	    ld hl,cforth_2b_2b_2b_start
+877A: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[ret] --
               	
-872B:         	cforth_2d_2d_forth:
-872B:         	cforth_2d_2d_start:
-872B: 1B      	  dec  de
+877D:         	cforth_2d_2d_forth:
+877D:         	cforth_2d_2d_start:
+877D: 1B      	  dec  de
               	
               	; @end
               	
-872C:         	cforth_2d_2d_end:
-872C: C9      	    ret
-872D:         	cforth_2d_2d_macro:
-872D: 0601    	    ld b,cforth_2d_2d_end-cforth_2d_2d_start
-872F: 212B87  	    ld hl,cforth_2d_2d_start
-8732: C3CF83  	    jp MacroExpand
+877E:         	cforth_2d_2d_end:
+877E: C9      	    ret
+877F:         	cforth_2d_2d_macro:
+877F: 0601    	    ld b,cforth_2d_2d_end-cforth_2d_2d_start
+8781: 217D87  	    ld hl,cforth_2d_2d_start
+8784: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @macro[ret] ---
               	
-8735:         	cforth_2d_2d_2d_forth:
-8735:         	cforth_2d_2d_2d_start:
-8735: 1B      	  dec  de
-8736: 1B      	  dec  de
+8787:         	cforth_2d_2d_2d_forth:
+8787:         	cforth_2d_2d_2d_start:
+8787: 1B      	  dec  de
+8788: 1B      	  dec  de
               	
               	; @end
               	
-8737:         	cforth_2d_2d_2d_end:
-8737: C9      	    ret
-8738:         	cforth_2d_2d_2d_macro:
-8738: 0602    	    ld b,cforth_2d_2d_2d_end-cforth_2d_2d_2d_start
-873A: 213587  	    ld hl,cforth_2d_2d_2d_start
-873D: C3CF83  	    jp MacroExpand
+8789:         	cforth_2d_2d_2d_end:
+8789: C9      	    ret
+878A:         	cforth_2d_2d_2d_macro:
+878A: 0602    	    ld b,cforth_2d_2d_2d_end-cforth_2d_2d_2d_start
+878C: 218787  	    ld hl,cforth_2d_2d_2d_start
+878F: C3CF83  	    jp MacroExpand
               	
               	; *********************************************************************************
               	
               	
               	; @forth[ret] -
               	
-8740:         	cforth_2d_forth:
-8740:         	cforth_2d_start:
-8740: 7A      	  ld   a,d
-8741: 2F      	  cpl
-8742: 57      	  ld   d,a
-8743: 7B      	  ld   a,e
-8744: 2F      	  cpl
-8745: 5F      	  ld   e,a
+8792:         	cforth_2d_forth:
+8792:         	cforth_2d_start:
+8792: 7A      	  ld   a,d
+8793: 2F      	  cpl
+8794: 57      	  ld   d,a
+8795: 7B      	  ld   a,e
+8796: 2F      	  cpl
+8797: 5F      	  ld   e,a
               	
               	; @end
               	
-8746:         	cforth_2d_end:
-8746: C9      	    ret
+8798:         	cforth_2d_end:
+8798: C9      	    ret
               	
               	; *********************************************************************************
               	
               	
               	; @forth[ret]  negate
               	
-8747:         	cforth_6e_65_67_61_74_65_forth:
-8747:         	cforth_6e_65_67_61_74_65_start:
-8747: 7A      	  ld   a,d
-8748: 2F      	  cpl
-8749: 57      	  ld   d,a
-874A: 7B      	  ld   a,e
-874B: 2F      	  cpl
-874C: 5F      	  ld   e,a
-874D: 13      	  inc  de
+8799:         	cforth_6e_65_67_61_74_65_forth:
+8799:         	cforth_6e_65_67_61_74_65_start:
+8799: 7A      	  ld   a,d
+879A: 2F      	  cpl
+879B: 57      	  ld   d,a
+879C: 7B      	  ld   a,e
+879D: 2F      	  cpl
+879E: 5F      	  ld   e,a
+879F: 13      	  inc  de
               	
               	; @end
               	
-874E:         	cforth_6e_65_67_61_74_65_end:
-874E: C9      	    ret
+87A0:         	cforth_6e_65_67_61_74_65_end:
+87A0: C9      	    ret
               	
               	; *********************************************************************************
               	
               	
               	; @forth[ret]  abs
               	
-874F:         	cforth_61_62_73_forth:
-874F:         	cforth_61_62_73_start:
-874F: CB7A    	  bit  7,d
-8751: 2807    	  jr   z,__IsPositive
-8753: 7A      	  ld   a,d
-8754: 2F      	  cpl
-8755: 57      	  ld   d,a
-8756: 7B      	  ld   a,e
-8757: 2F      	  cpl
-8758: 5F      	  ld   e,a
-8759: 13      	  inc  de
-875A:         	__IsPositive:
+87A1:         	cforth_61_62_73_forth:
+87A1:         	cforth_61_62_73_start:
+87A1: CB7A    	  bit  7,d
+87A3: 2807    	  jr   z,__IsPositive
+87A5: 7A      	  ld   a,d
+87A6: 2F      	  cpl
+87A7: 57      	  ld   d,a
+87A8: 7B      	  ld   a,e
+87A9: 2F      	  cpl
+87AA: 5F      	  ld   e,a
+87AB: 13      	  inc  de
+87AC:         	__IsPositive:
               	
               	; @end
               	
-875A:         	cforth_61_62_73_end:
-875A: C9      	    ret
+87AC:         	cforth_61_62_73_end:
+87AC: C9      	    ret
               	
               	; *********************************************************************************
               	
               	
               	; @forth[ret]  0=
               	
-875B:         	cforth_30_3d_forth:
-875B:         	cforth_30_3d_start:
-875B: 7A      	  ld   a,d
-875C: B3      	  or   e
-875D: 110000  	  ld   de,$0000
-8760: 2001    	  jr   nz,__IsNonZero
-8762: 1B      	  dec  de
-8763:         	__IsNonZero:
+87AD:         	cforth_30_3d_forth:
+87AD:         	cforth_30_3d_start:
+87AD: 7A      	  ld   a,d
+87AE: B3      	  or   e
+87AF: 110000  	  ld   de,$0000
+87B2: 2001    	  jr   nz,__IsNonZero
+87B4: 1B      	  dec  de
+87B5:         	__IsNonZero:
               	
               	; @end
               	
-8763:         	cforth_30_3d_end:
-8763: C9      	    ret
+87B5:         	cforth_30_3d_end:
+87B5: C9      	    ret
               	
               	; *********************************************************************************
               	
               	
               	; @forth[ret]  0<
               	
-8764:         	cforth_30_3c_forth:
-8764:         	cforth_30_3c_start:
-8764: CB7A    	  bit  7,d
-8766: 110000  	  ld   de,$0000
-8769: 2801    	  jr   z,__IsPositive2
-876B: 1B      	  dec  de
-876C:         	__IsPositive2:
+87B6:         	cforth_30_3c_forth:
+87B6:         	cforth_30_3c_start:
+87B6: CB7A    	  bit  7,d
+87B8: 110000  	  ld   de,$0000
+87BB: 2801    	  jr   z,__IsPositive2
+87BD: 1B      	  dec  de
+87BE:         	__IsPositive2:
               	
               	; @end
               	
-876C:         	cforth_30_3c_end:
-876C: C9      	    ret
+87BE:         	cforth_30_3c_end:
+87BE: C9      	    ret
               	; ***************************************************************************************
               	; ***************************************************************************************
               	;
@@ -2328,86 +2453,86 @@
               	
               	; @word[hl] inkey
               	
-876D:         	cforth_69_6e_6b_65_79_forth:
-876D: E1      	    pop hl
-876E:         	cforth_69_6e_6b_65_79_start:
-876E: D5      	  push  de
-876F: CD8381  	  call  IOScanKeyboard
-8772: 5F      	  ld   e,a
-8773: 1600    	  ld   d,0
+87BF:         	cforth_69_6e_6b_65_79_forth:
+87BF: E1      	    pop hl
+87C0:         	cforth_69_6e_6b_65_79_start:
+87C0: D5      	  push  de
+87C1: CD8381  	  call  IOScanKeyboard
+87C4: 5F      	  ld   e,a
+87C5: 1600    	  ld   d,0
               	
               	; @end
               	
-8775:         	cforth_69_6e_6b_65_79_end:
-8775: E9      	    jp (hl)
+87C7:         	cforth_69_6e_6b_65_79_end:
+87C7: E9      	    jp (hl)
               	
               	; ***************************************************************************************
               	
               	
               	; @word[hl] halt
               	
-8776:         	cforth_68_61_6c_74_forth:
-8776: E1      	    pop hl
-8777:         	cforth_68_61_6c_74_start:
+87C8:         	cforth_68_61_6c_74_forth:
+87C8: E1      	    pop hl
+87C9:         	cforth_68_61_6c_74_start:
               	
-8777: C32080  	  jp   HaltZ80
+87C9: C32080  	  jp   HaltZ80
               	
               	; @end
               	
-877A:         	cforth_68_61_6c_74_end:
-877A: E9      	    jp (hl)
+87CC:         	cforth_68_61_6c_74_end:
+87CC: E9      	    jp (hl)
               	
               	; ***************************************************************************************
               	
               	
               	; @macro[ret] break
               	
-877B:         	cforth_62_72_65_61_6b_forth:
-877B:         	cforth_62_72_65_61_6b_start:
-877B: DD01    	  db   $DD,$01
+87CD:         	cforth_62_72_65_61_6b_forth:
+87CD:         	cforth_62_72_65_61_6b_start:
+87CD: DD01    	  db   $DD,$01
               	
               	; @endm
               	
-877D:         	cforth_62_72_65_61_6b_end:
-877D: C9      	    ret
-877E:         	cforth_62_72_65_61_6b_macro:
-877E: 0602    	    ld b,cforth_62_72_65_61_6b_end-cforth_62_72_65_61_6b_start
-8780: 217B87  	    ld hl,cforth_62_72_65_61_6b_start
-8783: C3CF83  	    jp MacroExpand
+87CF:         	cforth_62_72_65_61_6b_end:
+87CF: C9      	    ret
+87D0:         	cforth_62_72_65_61_6b_macro:
+87D0: 0602    	    ld b,cforth_62_72_65_61_6b_end-cforth_62_72_65_61_6b_start
+87D2: 21CD87  	    ld hl,cforth_62_72_65_61_6b_start
+87D5: C3CF83  	    jp MacroExpand
               	
               	; ***************************************************************************************
               	
               	
               	; @word[hl] 1,
               	
-8786:         	cforth_31_2c_forth:
-8786: E1      	    pop hl
-8787:         	cforth_31_2c_start:
-8787: 7B      	  ld   a,e
-8788: CD6480  	  call  FARCompileByte
-878B: D1      	  pop  de
+87D8:         	cforth_31_2c_forth:
+87D8: E1      	    pop hl
+87D9:         	cforth_31_2c_start:
+87D9: 7B      	  ld   a,e
+87DA: CD6480  	  call  FARCompileByte
+87DD: D1      	  pop  de
               	
               	; @endm
               	
-878C:         	cforth_31_2c_end:
-878C: E9      	    jp (hl)
+87DE:         	cforth_31_2c_end:
+87DE: E9      	    jp (hl)
               	
               	; ***************************************************************************************
               	
               	
               	; @word[hl] 2,
               	
-878D:         	cforth_32_2c_forth:
-878D: E1      	    pop hl
-878E:         	cforth_32_2c_start:
-878E: EB      	  ex   de,hl
-878F: CD6480  	  call  FARCompileByte
-8792: D1      	  pop  de
+87DF:         	cforth_32_2c_forth:
+87DF: E1      	    pop hl
+87E0:         	cforth_32_2c_start:
+87E0: EB      	  ex   de,hl
+87E1: CD6480  	  call  FARCompileByte
+87E4: D1      	  pop  de
               	
               	; @endm
               	
-8793:         	cforth_32_2c_end:
-8793: E9      	    jp (hl)
+87E5:         	cforth_32_2c_end:
+87E5: E9      	    jp (hl)
               	
               	; ***************************************************************************************
               	;    FORTH and MACRO are special cases. See makedictionary.py
@@ -2416,224 +2541,224 @@
               	
               	; @word[ret] forth
               	
-8794:         	cforth_66_6f_72_74_68_forth:
-8794:         	cforth_66_6f_72_74_68_start:
-8794: 3E00    	  ld   a,$00
-8796: 32E78A  	  ld   (DICTForthMacroFlag),a
+87E6:         	cforth_66_6f_72_74_68_forth:
+87E6:         	cforth_66_6f_72_74_68_start:
+87E6: 3E00    	  ld   a,$00
+87E8: 323B8B  	  ld   (DICTForthMacroFlag),a
               	
               	; @endm
               	
-8799:         	cforth_66_6f_72_74_68_end:
-8799: C9      	    ret
+87EB:         	cforth_66_6f_72_74_68_end:
+87EB: C9      	    ret
               	
               	; ***************************************************************************************
               	
               	
               	; @word[ret] macro
               	
-879A:         	cforth_6d_61_63_72_6f_forth:
-879A:         	cforth_6d_61_63_72_6f_start:
-879A: 3E00    	  ld   a,$00
-879C: 32E78A  	  ld   (DICTForthMacroFlag),a
+87EC:         	cforth_6d_61_63_72_6f_forth:
+87EC:         	cforth_6d_61_63_72_6f_start:
+87EC: 3E00    	  ld   a,$00
+87EE: 323B8B  	  ld   (DICTForthMacroFlag),a
               	
               	; @endm
               	
-879F:         	cforth_6d_61_63_72_6f_end:
-879F: C9      	    ret
+87F1:         	cforth_6d_61_63_72_6f_end:
+87F1: C9      	    ret
               	
-87A0:         	AlternateFont:										; nicer font
+87F2:         	AlternateFont:										; nicer font
               			include "font.inc" 							; can be $3D00 here to save memory
-87A0: 00000000	  db 0,0,0,0,0,0,0,0,12,30,30,12,12,0,12,0,54,54,0,0,0,0,0,0,54,54,127,54,127,54,54,0,24,62,96,60,6,124,24,0,0,99,102,12,24,51,99,0,28,54,28,59,110,102,59,0,48,48,96,0,0,0,0,0,12,24,48,48,48,24,12,0,48,24,12,12,12,24,48,0,0,51,30,127,30,51,0,0,0,24,24,126,24,24,0,0,0,0,0,0,0,24,24,48,0,0,0,126,0,0,0,0,0,0,0,0,0,24,24,0,3,6,12,24,48,96,64,0,62,99,103,111,123,115,62,0,24,56,24,24,24,24,126,0,60,102,6,28,48,102,126,0,60,102,6,28,6,102,60,0,14,30,54,102,127,6,15,0,126,96,124,6,6,102,60,0,28,48,96,124,102,102,60,0,126,102,6,12,24,24,24,0,60,102,102,60,102,102,60,0,60,102,102,62,6,12,56,0,0,24,24,0,0,24,24,0,0,24,24,0,0,24,24,48,12,24,48,96,48,24,12,0,0,0,126,0,0,126,0,0,48,24,12,6,12,24,48,0,60,102,6,12,24,0,24,0,62,99,111,111,111,96,60,0,24,60,102,102,126,102,102,0,126,51,51,62,51,51,126,0,30,51,96,96,96,51,30,0,124,54,51,51,51,54,124,0,127,49,52,60,52,49,127,0,127,49,52,60,52,48,120,0,30,51,96,96,103,51,31,0,102,102,102,126,102,102,102,0,60,24,24,24,24,24,60,0,15,6,6,6,102,102,60,0,115,51,54,60,54,51,115,0,120,48,48,48,49,51,127,0,99,119,127,127,107,99,99,0,99,115,123,111,103,99,99,0,28,54,99,99,99,54,28,0,126,51,51,62,48,48,120,0,60,102,102,102,110,60,14,0,126,51,51,62,54,51,115,0,60,102,112,56,14,102,60,0,126,90,24,24,24,24,60,0,102,102,102,102,102,102,126,0,102,102,102,102,102,60,24,0,99,99,99,107,127,119,99,0,99,99,54,28,28,54,99,0,102,102,102,60,24,24,60,0,127,99,70,12,25,51,127,0,60,48,48,48,48,48,60,0,96,48,24,12,6,3,1,0,60,12,12,12,12,12,60,0,8,28,54,99,0,0,0,0,0,0,0,0,0,0,0,127,24,24,12,0,0,0,0,0,0,0,60,6,62,102,59,0,112,48,48,62,51,51,110,0,0,0,60,102,96,102,60,0,14,6,6,62,102,102,59,0,0,0,60,102,126,96,60,0,28,54,48,120,48,48,120,0,0,0,59,102,102,62,6,124,112,48,54,59,51,51,115,0,24,0,56,24,24,24,60,0,6,0,6,6,6,102,102,60,112,48,51,54,60,54,115,0,56,24,24,24,24,24,60,0,0,0,102,127,127,107,99,0,0,0,124,102,102,102,102,0,0,0,60,102,102,102,60,0,0,0,110,51,51,62,48,120,0,0,59,102,102,62,6,15,0,0,110,59,51,48,120,0,0,0,62,96,60,6,124,0,8,24,62,24,24,26,12,0,0,0,102,102,102,102,59,0,0,0,102,102,102,60,24,0,0,0,99,107,127,127,54,0,0,0,99,54,28,54,99,0,0,0,102,102,102,62,6,124,0,0,126,76,24,50,126,0,14,24,24,112,24,24,14,0,12,12,12,0,12,12,12,0,112,24,24,14,24,24,112,0,59,110,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-87A4: 00000000	
-87A8: 0C1E1E0C	
-87AC: 0C000C00	
-87B0: 36360000	
-87B4: 00000000	
-87B8: 36367F36	
-87BC: 7F363600	
-87C0: 183E603C	
-87C4: 067C1800	
-87C8: 0063660C	
-87CC: 18336300	
-87D0: 1C361C3B	
-87D4: 6E663B00	
-87D8: 30306000	
-87DC: 00000000	
-87E0: 0C183030	
-87E4: 30180C00	
-87E8: 30180C0C	
-87EC: 0C183000	
-87F0: 00331E7F	
-87F4: 1E330000	
-87F8: 0018187E	
-87FC: 18180000	
-8800: 00000000	
-8804: 00181830	
-8808: 0000007E	
-880C: 00000000	
-8810: 00000000	
-8814: 00181800	
-8818: 03060C18	
-881C: 30604000	
-8820: 3E63676F	
-8824: 7B733E00	
-8828: 18381818	
-882C: 18187E00	
-8830: 3C66061C	
-8834: 30667E00	
-8838: 3C66061C	
-883C: 06663C00	
-8840: 0E1E3666	
-8844: 7F060F00	
-8848: 7E607C06	
-884C: 06663C00	
-8850: 1C30607C	
-8854: 66663C00	
-8858: 7E66060C	
-885C: 18181800	
-8860: 3C66663C	
-8864: 66663C00	
-8868: 3C66663E	
-886C: 060C3800	
-8870: 00181800	
-8874: 00181800	
-8878: 00181800	
-887C: 00181830	
-8880: 0C183060	
-8884: 30180C00	
-8888: 00007E00	
-888C: 007E0000	
-8890: 30180C06	
-8894: 0C183000	
-8898: 3C66060C	
-889C: 18001800	
-88A0: 3E636F6F	
-88A4: 6F603C00	
-88A8: 183C6666	
-88AC: 7E666600	
-88B0: 7E33333E	
-88B4: 33337E00	
-88B8: 1E336060	
-88BC: 60331E00	
-88C0: 7C363333	
-88C4: 33367C00	
-88C8: 7F31343C	
-88CC: 34317F00	
-88D0: 7F31343C	
-88D4: 34307800	
-88D8: 1E336060	
-88DC: 67331F00	
-88E0: 6666667E	
-88E4: 66666600	
-88E8: 3C181818	
-88EC: 18183C00	
-88F0: 0F060606	
-88F4: 66663C00	
-88F8: 7333363C	
-88FC: 36337300	
-8900: 78303030	
-8904: 31337F00	
-8908: 63777F7F	
-890C: 6B636300	
-8910: 63737B6F	
-8914: 67636300	
-8918: 1C366363	
-891C: 63361C00	
-8920: 7E33333E	
-8924: 30307800	
-8928: 3C666666	
-892C: 6E3C0E00	
-8930: 7E33333E	
-8934: 36337300	
-8938: 3C667038	
-893C: 0E663C00	
-8940: 7E5A1818	
-8944: 18183C00	
-8948: 66666666	
-894C: 66667E00	
-8950: 66666666	
-8954: 663C1800	
-8958: 6363636B	
-895C: 7F776300	
-8960: 6363361C	
-8964: 1C366300	
-8968: 6666663C	
-896C: 18183C00	
-8970: 7F63460C	
-8974: 19337F00	
-8978: 3C303030	
-897C: 30303C00	
-8980: 6030180C	
-8984: 06030100	
-8988: 3C0C0C0C	
-898C: 0C0C3C00	
-8990: 081C3663	
-8994: 00000000	
-8998: 00000000	
-899C: 0000007F	
-89A0: 18180C00	
-89A4: 00000000	
-89A8: 00003C06	
-89AC: 3E663B00	
-89B0: 7030303E	
-89B4: 33336E00	
-89B8: 00003C66	
-89BC: 60663C00	
-89C0: 0E06063E	
-89C4: 66663B00	
-89C8: 00003C66	
-89CC: 7E603C00	
-89D0: 1C363078	
-89D4: 30307800	
-89D8: 00003B66	
-89DC: 663E067C	
-89E0: 7030363B	
-89E4: 33337300	
-89E8: 18003818	
-89EC: 18183C00	
-89F0: 06000606	
-89F4: 0666663C	
-89F8: 70303336	
-89FC: 3C367300	
-8A00: 38181818	
-8A04: 18183C00	
-8A08: 0000667F	
-8A0C: 7F6B6300	
-8A10: 00007C66	
-8A14: 66666600	
-8A18: 00003C66	
-8A1C: 66663C00	
-8A20: 00006E33	
-8A24: 333E3078	
-8A28: 00003B66	
-8A2C: 663E060F	
-8A30: 00006E3B	
-8A34: 33307800	
-8A38: 00003E60	
-8A3C: 3C067C00	
-8A40: 08183E18	
-8A44: 181A0C00	
-8A48: 00006666	
-8A4C: 66663B00	
-8A50: 00006666	
-8A54: 663C1800	
-8A58: 0000636B	
-8A5C: 7F7F3600	
-8A60: 00006336	
-8A64: 1C366300	
-8A68: 00006666	
-8A6C: 663E067C	
-8A70: 00007E4C	
-8A74: 18327E00	
-8A78: 0E181870	
-8A7C: 18180E00	
-8A80: 0C0C0C00	
-8A84: 0C0C0C00	
-8A88: 7018180E	
-8A8C: 18187000	
-8A90: 3B6E0000	
-8A94: 00000000	
-8A98: 00...   	
+87F2: 00000000	  db 0,0,0,0,0,0,0,0,12,30,30,12,12,0,12,0,54,54,0,0,0,0,0,0,54,54,127,54,127,54,54,0,24,62,96,60,6,124,24,0,0,99,102,12,24,51,99,0,28,54,28,59,110,102,59,0,48,48,96,0,0,0,0,0,12,24,48,48,48,24,12,0,48,24,12,12,12,24,48,0,0,51,30,127,30,51,0,0,0,24,24,126,24,24,0,0,0,0,0,0,0,24,24,48,0,0,0,126,0,0,0,0,0,0,0,0,0,24,24,0,3,6,12,24,48,96,64,0,62,99,103,111,123,115,62,0,24,56,24,24,24,24,126,0,60,102,6,28,48,102,126,0,60,102,6,28,6,102,60,0,14,30,54,102,127,6,15,0,126,96,124,6,6,102,60,0,28,48,96,124,102,102,60,0,126,102,6,12,24,24,24,0,60,102,102,60,102,102,60,0,60,102,102,62,6,12,56,0,0,24,24,0,0,24,24,0,0,24,24,0,0,24,24,48,12,24,48,96,48,24,12,0,0,0,126,0,0,126,0,0,48,24,12,6,12,24,48,0,60,102,6,12,24,0,24,0,62,99,111,111,111,96,60,0,24,60,102,102,126,102,102,0,126,51,51,62,51,51,126,0,30,51,96,96,96,51,30,0,124,54,51,51,51,54,124,0,127,49,52,60,52,49,127,0,127,49,52,60,52,48,120,0,30,51,96,96,103,51,31,0,102,102,102,126,102,102,102,0,60,24,24,24,24,24,60,0,15,6,6,6,102,102,60,0,115,51,54,60,54,51,115,0,120,48,48,48,49,51,127,0,99,119,127,127,107,99,99,0,99,115,123,111,103,99,99,0,28,54,99,99,99,54,28,0,126,51,51,62,48,48,120,0,60,102,102,102,110,60,14,0,126,51,51,62,54,51,115,0,60,102,112,56,14,102,60,0,126,90,24,24,24,24,60,0,102,102,102,102,102,102,126,0,102,102,102,102,102,60,24,0,99,99,99,107,127,119,99,0,99,99,54,28,28,54,99,0,102,102,102,60,24,24,60,0,127,99,70,12,25,51,127,0,60,48,48,48,48,48,60,0,96,48,24,12,6,3,1,0,60,12,12,12,12,12,60,0,8,28,54,99,0,0,0,0,0,0,0,0,0,0,0,127,24,24,12,0,0,0,0,0,0,0,60,6,62,102,59,0,112,48,48,62,51,51,110,0,0,0,60,102,96,102,60,0,14,6,6,62,102,102,59,0,0,0,60,102,126,96,60,0,28,54,48,120,48,48,120,0,0,0,59,102,102,62,6,124,112,48,54,59,51,51,115,0,24,0,56,24,24,24,60,0,6,0,6,6,6,102,102,60,112,48,51,54,60,54,115,0,56,24,24,24,24,24,60,0,0,0,102,127,127,107,99,0,0,0,124,102,102,102,102,0,0,0,60,102,102,102,60,0,0,0,110,51,51,62,48,120,0,0,59,102,102,62,6,15,0,0,110,59,51,48,120,0,0,0,62,96,60,6,124,0,8,24,62,24,24,26,12,0,0,0,102,102,102,102,59,0,0,0,102,102,102,60,24,0,0,0,99,107,127,127,54,0,0,0,99,54,28,54,99,0,0,0,102,102,102,62,6,124,0,0,126,76,24,50,126,0,14,24,24,112,24,24,14,0,12,12,12,0,12,12,12,0,112,24,24,14,24,24,112,0,59,110,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+87F6: 00000000	
+87FA: 0C1E1E0C	
+87FE: 0C000C00	
+8802: 36360000	
+8806: 00000000	
+880A: 36367F36	
+880E: 7F363600	
+8812: 183E603C	
+8816: 067C1800	
+881A: 0063660C	
+881E: 18336300	
+8822: 1C361C3B	
+8826: 6E663B00	
+882A: 30306000	
+882E: 00000000	
+8832: 0C183030	
+8836: 30180C00	
+883A: 30180C0C	
+883E: 0C183000	
+8842: 00331E7F	
+8846: 1E330000	
+884A: 0018187E	
+884E: 18180000	
+8852: 00000000	
+8856: 00181830	
+885A: 0000007E	
+885E: 00000000	
+8862: 00000000	
+8866: 00181800	
+886A: 03060C18	
+886E: 30604000	
+8872: 3E63676F	
+8876: 7B733E00	
+887A: 18381818	
+887E: 18187E00	
+8882: 3C66061C	
+8886: 30667E00	
+888A: 3C66061C	
+888E: 06663C00	
+8892: 0E1E3666	
+8896: 7F060F00	
+889A: 7E607C06	
+889E: 06663C00	
+88A2: 1C30607C	
+88A6: 66663C00	
+88AA: 7E66060C	
+88AE: 18181800	
+88B2: 3C66663C	
+88B6: 66663C00	
+88BA: 3C66663E	
+88BE: 060C3800	
+88C2: 00181800	
+88C6: 00181800	
+88CA: 00181800	
+88CE: 00181830	
+88D2: 0C183060	
+88D6: 30180C00	
+88DA: 00007E00	
+88DE: 007E0000	
+88E2: 30180C06	
+88E6: 0C183000	
+88EA: 3C66060C	
+88EE: 18001800	
+88F2: 3E636F6F	
+88F6: 6F603C00	
+88FA: 183C6666	
+88FE: 7E666600	
+8902: 7E33333E	
+8906: 33337E00	
+890A: 1E336060	
+890E: 60331E00	
+8912: 7C363333	
+8916: 33367C00	
+891A: 7F31343C	
+891E: 34317F00	
+8922: 7F31343C	
+8926: 34307800	
+892A: 1E336060	
+892E: 67331F00	
+8932: 6666667E	
+8936: 66666600	
+893A: 3C181818	
+893E: 18183C00	
+8942: 0F060606	
+8946: 66663C00	
+894A: 7333363C	
+894E: 36337300	
+8952: 78303030	
+8956: 31337F00	
+895A: 63777F7F	
+895E: 6B636300	
+8962: 63737B6F	
+8966: 67636300	
+896A: 1C366363	
+896E: 63361C00	
+8972: 7E33333E	
+8976: 30307800	
+897A: 3C666666	
+897E: 6E3C0E00	
+8982: 7E33333E	
+8986: 36337300	
+898A: 3C667038	
+898E: 0E663C00	
+8992: 7E5A1818	
+8996: 18183C00	
+899A: 66666666	
+899E: 66667E00	
+89A2: 66666666	
+89A6: 663C1800	
+89AA: 6363636B	
+89AE: 7F776300	
+89B2: 6363361C	
+89B6: 1C366300	
+89BA: 6666663C	
+89BE: 18183C00	
+89C2: 7F63460C	
+89C6: 19337F00	
+89CA: 3C303030	
+89CE: 30303C00	
+89D2: 6030180C	
+89D6: 06030100	
+89DA: 3C0C0C0C	
+89DE: 0C0C3C00	
+89E2: 081C3663	
+89E6: 00000000	
+89EA: 00000000	
+89EE: 0000007F	
+89F2: 18180C00	
+89F6: 00000000	
+89FA: 00003C06	
+89FE: 3E663B00	
+8A02: 7030303E	
+8A06: 33336E00	
+8A0A: 00003C66	
+8A0E: 60663C00	
+8A12: 0E06063E	
+8A16: 66663B00	
+8A1A: 00003C66	
+8A1E: 7E603C00	
+8A22: 1C363078	
+8A26: 30307800	
+8A2A: 00003B66	
+8A2E: 663E067C	
+8A32: 7030363B	
+8A36: 33337300	
+8A3A: 18003818	
+8A3E: 18183C00	
+8A42: 06000606	
+8A46: 0666663C	
+8A4A: 70303336	
+8A4E: 3C367300	
+8A52: 38181818	
+8A56: 18183C00	
+8A5A: 0000667F	
+8A5E: 7F6B6300	
+8A62: 00007C66	
+8A66: 66666600	
+8A6A: 00003C66	
+8A6E: 66663C00	
+8A72: 00006E33	
+8A76: 333E3078	
+8A7A: 00003B66	
+8A7E: 663E060F	
+8A82: 00006E3B	
+8A86: 33307800	
+8A8A: 00003E60	
+8A8E: 3C067C00	
+8A92: 08183E18	
+8A96: 181A0C00	
+8A9A: 00006666	
+8A9E: 66663B00	
+8AA2: 00006666	
+8AA6: 663C1800	
+8AAA: 0000636B	
+8AAE: 7F7F3600	
+8AB2: 00006336	
+8AB6: 1C366300	
+8ABA: 00006666	
+8ABE: 663E067C	
+8AC2: 00007E4C	
+8AC6: 18327E00	
+8ACA: 0E181870	
+8ACE: 18180E00	
+8AD2: 0C0C0C00	
+8AD6: 0C0C0C00	
+8ADA: 7018180E	
+8ADE: 18187000	
+8AE2: 3B6E0000	
+8AE6: 00000000	
+8AEA: 00...   	
               	
               	
               			include "data.asm"		
@@ -2654,26 +2779,26 @@
               	;
               	; ***************************************************************************************
               	
-8AA0:         	SystemInformationTable:
+8AF2:         	SystemInformationTable:
               	
-8AA0:         	SINextFreeCode: 									; +0 	Next Free Code Byte
-8AA0: 00A0    			dw 		FreeMemory
-8AA2:         	SINextFreeCodePage: 								; +2 	Next Free Code Byte Page
-8AA2: 2600    			db 		FirstCodePage,0
+8AF2:         	SINextFreeCode: 									; +0 	Next Free Code Byte
+8AF2: 00A0    			dw 		FreeMemory
+8AF4:         	SINextFreeCodePage: 								; +2 	Next Free Code Byte Page
+8AF4: 2600    			db 		FirstCodePage,0
               	
-8AA4:         	SIBootCodeAddress:									; +4	Run from here
-8AA4: 2C85    			dw 		CompilerTest
-8AA6:         	SIBootCodePage: 									; +6    Run page.
-8AA6: 2600    			db		FirstCodePage,0
+8AF6:         	SIBootCodeAddress:									; +4	Run from here
+8AF6: 2C85    			dw 		CompilerTest
+8AF8:         	SIBootCodePage: 									; +6    Run page.
+8AF8: 2600    			db		FirstCodePage,0
               	
-8AA8:         	SIPageUsage:										; +8 	Page Usage Table
-8AA8: C68A0000			dw 		PageUsage,0 			
+8AFA:         	SIPageUsage:										; +8 	Page Usage Table
+8AFA: 1A8B0000			dw 		PageUsage,0 			
               	
-8AAC:         	SIDisplayInformation:								; +12 	Display Information structure address
-8AAC: E88A0000			dw 		DIScreenWidth,0
+8AFE:         	SIDisplayInformation:								; +12 	Display Information structure address
+8AFE: 3C8B0000			dw 		DIScreenWidth,0
               	
-8AB0:         	SIStack:											; +16 	Initial Z80 stack value
-8AB0: FC7E0000			dw 		StackTop,0							
+8B02:         	SIStack:											; +16 	Initial Z80 stack value
+8B02: FC7E0000			dw 		StackTop,0							
               	
               	; ***************************************************************************************
               	;
@@ -2681,47 +2806,49 @@
               	;
               	; ***************************************************************************************
               	
-8AB4:         	PAGEStackPointer: 									; stack used for switching pages
-8AB4: 0000    			dw 		0
-8AB6:         	PAGEStackBase:
-8AB6: FFFFFFFF			ds 		16
-8ABA: FF...   	
+8B06:         	PAGEStackPointer: 									; stack used for switching pages
+8B06: 0000    			dw 		0
+8B08:         	PAGEStackBase:
+8B08: FFFFFFFF			ds 		16
+8B0C: FF...   	
+8B18:         	COMStackTemp: 										; temporary stack store when
+8B18: 0000    			dw 		0 									; executing yellow words
               	;
               	;		Page usage table. Note this needs to match up with the definitions in kernel.asm
               	;
-8AC6:         	PageUsage:
-8AC6: 01      			db 		1 									; $20 Dictionary (1)
-8AC7: 0303    			db 		3,3 								; $22 User Code (3)
-8AC9: 02      			db 		2 									; $26 First binary code page (2)
-8ACA: 00000000			db 		0,0,0,0 							; to $2E, remaining pages
-8ACE: 00000000			db 		0,0,0,0,0,0,0,0 					; $30-$3E
-8AD2: 00000000	
-8AD6: 00000000			db 		0,0,0,0,0,0,0,0 					; $40-$4E
-8ADA: 00000000	
-8ADE: 00000000			db 		0,0,0,0,0,0,0,0 					; $50-$5E
-8AE2: 00000000	
-8AE6: FF      			db 		$FF
+8B1A:         	PageUsage:
+8B1A: 01      			db 		1 									; $20 Dictionary (1)
+8B1B: 0303    			db 		3,3 								; $22 User Code (3)
+8B1D: 02      			db 		2 									; $26 First binary code page (2)
+8B1E: 00000000			db 		0,0,0,0 							; to $2E, remaining pages
+8B22: 00000000			db 		0,0,0,0,0,0,0,0 					; $30-$3E
+8B26: 00000000	
+8B2A: 00000000			db 		0,0,0,0,0,0,0,0 					; $40-$4E
+8B2E: 00000000	
+8B32: 00000000			db 		0,0,0,0,0,0,0,0 					; $50-$5E
+8B36: 00000000	
+8B3A: FF      			db 		$FF
               	
-8AE7:         	DICTForthMacroFlag:									; does it go in FORTH ($00) MACRO ($40)
-8AE7: 00      			db 		0
+8B3B:         	DICTForthMacroFlag:									; does it go in FORTH ($00) MACRO ($40)
+8B3B: 00      			db 		0
               	;
               	;			Display Information
               	;
-8AE8:         	DIScreenWidth:										; +0 	Screen Width
-8AE8: 00000000			dw 		0,0
-8AEC:         	DIScreenHeight:										; +4 	Screen Height
-8AEC: 00000000			dw 		0,0
-8AF0:         	DIScreenSize: 										; +8    Screen Size in Characters
-8AF0: 00000000			dw 		0,0
-8AF4:         	DIScreenDriver:										; +12 	Screen Driver
-8AF4: 00000000			dw 		0,0 								
-8AF8:         	DIFontBase:											; +16 	768 byte font, begins with space
-8AF8: A0870000			dw 		AlternateFont,0 							
-8AFC:         	DIScreenMode:										; +20 	Current Mode
-8AFC: 00000000			dw 		0,0
+8B3C:         	DIScreenWidth:										; +0 	Screen Width
+8B3C: 00000000			dw 		0,0
+8B40:         	DIScreenHeight:										; +4 	Screen Height
+8B40: 00000000			dw 		0,0
+8B44:         	DIScreenSize: 										; +8    Screen Size in Characters
+8B44: 00000000			dw 		0,0
+8B48:         	DIScreenDriver:										; +12 	Screen Driver
+8B48: 00000000			dw 		0,0 								
+8B4C:         	DIFontBase:											; +16 	768 byte font, begins with space
+8B4C: F2870000			dw 		AlternateFont,0 							
+8B50:         	DIScreenMode:										; +20 	Current Mode
+8B50: 00000000			dw 		0,0
               	
-8B00: FFFFFFFF			org 	$A000
-8B04: FF...   	
+8B54: FFFFFFFF			org 	$A000
+8B58: FF...   	
 A000:         	FreeMemory:		
               	
 A000: FFFFFFFF			org 	$C000
@@ -2735,28 +2862,33 @@ C000: 00      			db 		0 									; start of dictionary, which is empty.
 
 ; +++ global symbols +++
 
-AlternateFont               = $87A0 = 34720          kernel.asm:70
+AlternateFont               = $87F2 = 34802          kernel.asm:70
 BUFFindBuffer               = $8497 = 33943          buffer.asm:18
 BUFLoadBuffer               = $84B2 = 33970          buffer.asm:49
 BUFSaveBuffer               = $84CB = 33995          buffer.asm:73 (unused)
 Boot                        = $8006 = 32774          kernel.asm:33
-COMCompileBuffer            = $8534 = 34100          compiler.asm:24
-COMCompileWord_Cyan         = $8580 = 34176          compiler.asm:81
-COMCompileWord_Green        = $857F = 34175          compiler.asm:78
-COMDefinition_Magenta       = $857E = 34174          compiler.asm:75
-COMDefinition_Red           = $857D = 34173          compiler.asm:72
-COMExecuteWord_Yellow       = $8581 = 34177          compiler.asm:84
+COMCompileBuffer            = $853B = 34107          compiler.asm:33
+COMCompileWord_Cyan         = $858D = 34189          compiler.asm:124
+COMCompileWord_Green        = $858C = 34188          compiler.asm:114
+COMDefinition_Magenta       = $858B = 34187          compiler.asm:104
+COMDefinition_Red           = $858A = 34186          compiler.asm:93
+COMExecuteWord_Yellow       = $858E = 34190          compiler.asm:134
+COMStackTemp                = $8B18 = 35608          data.asm:49
+COMW_CallRoutineAtAHL       = $85A6 = 34214          compiler.asm:173 (unused)
+COMW_CallRoutineAtAHL_ConsoleVersion = $85C2 = 34242          compiler.asm:196 (unused)
+COMW_CompileCalltoAHL       = $858F = 34191          compiler.asm:143 (unused)
+COMW_CompileConstantHL      = $8598 = 34200          compiler.asm:158 (unused)
 CONSTConvert                = $84E4 = 34020          constant.asm:19 (unused)
 CompilerTest                = $852C = 34092          compiler.asm:12
 DICTAddWord                 = $83D7 = 33751          dictionary.asm:19 (unused)
 DICTFindWord                = $8434 = 33844          dictionary.asm:93 (unused)
-DICTForthMacroFlag          = $8AE7 = 35559          data.asm:62
-DIFontBase                  = $8AF8 = 35576          data.asm:75
-DIScreenDriver              = $8AF4 = 35572          data.asm:73
-DIScreenHeight              = $8AEC = 35564          data.asm:69
-DIScreenMode                = $8AFC = 35580          data.asm:77
-DIScreenSize                = $8AF0 = 35568          data.asm:71
-DIScreenWidth               = $8AE8 = 35560          data.asm:67
+DICTForthMacroFlag          = $8B3B = 35643          data.asm:64
+DIFontBase                  = $8B4C = 35660          data.asm:77
+DIScreenDriver              = $8B48 = 35656          data.asm:75
+DIScreenHeight              = $8B40 = 35648          data.asm:71
+DIScreenMode                = $8B50 = 35664          data.asm:79
+DIScreenSize                = $8B44 = 35652          data.asm:73
+DIScreenWidth               = $8B3C = 35644          data.asm:69
 DIVDivideMod16              = $8097 = 32919          divide.asm:18
 DictionaryPage              = $0020 =    32          kernel.asm:17
 Div16_Loop1                 = $80A1 = 32929          divide.asm:27
@@ -2767,9 +2899,9 @@ EditBuffer                  = $7B08 = 31496          kernel.asm:25
 ErrorHandler                = $801E = 32798          kernel.asm:45
 FARCompileByte              = $8064 = 32868          farmemory.asm:21
 FARCompileByteL             = $8063 = 32867          farmemory.asm:18 (unused)
-FARCompileWord              = $807C = 32892          farmemory.asm:43 (unused)
+FARCompileWord              = $807C = 32892          farmemory.asm:43
 FirstCodePage               = $0026 =    38          kernel.asm:20
-FreeMemory                  = $A000 = 40960          data.asm:81
+FreeMemory                  = $A000 = 40960          data.asm:83
 GFXClearScreen              = $80DC = 32988          graphics.asm:18
 GFXGetFontGraphicDE         = $8160 = 33120          graphics.asm:146
 GFXInitialise48k            = $8250 = 33360          screen48k.asm:19
@@ -2791,26 +2923,29 @@ MULTMultiply16              = $80C2 = 32962          multiply.asm:18
 MacroExpand                 = $83CF = 33743          utilities.asm:18
 PAGEInitialise              = $8024 = 32804          paging.asm:18
 PAGERestore                 = $804D = 32845          paging.asm:62
-PAGEStackBase               = $8AB6 = 35510          data.asm:47
-PAGEStackPointer            = $8AB4 = 35508          data.asm:45
+PAGEStackBase               = $8B08 = 35592          data.asm:47
+PAGEStackPointer            = $8B06 = 35590          data.asm:45
 PAGESwitch                  = $8034 = 32820          paging.asm:34
-PageUsage                   = $8AC6 = 35526          data.asm:52
-SIBootCodeAddress           = $8AA4 = 35492          data.asm:25
-SIBootCodePage              = $8AA6 = 35494          data.asm:27
-SIDisplayInformation        = $8AAC = 35500          data.asm:33 (unused)
-SINextFreeCode              = $8AA0 = 35488          data.asm:20
-SINextFreeCodePage          = $8AA2 = 35490          data.asm:22
-SIPageUsage                 = $8AA8 = 35496          data.asm:30 (unused)
-SIStack                     = $8AB0 = 35504          data.asm:36
+PageUsage                   = $8B1A = 35610          data.asm:54
+SIBootCodeAddress           = $8AF6 = 35574          data.asm:25
+SIBootCodePage              = $8AF8 = 35576          data.asm:27
+SIDisplayInformation        = $8AFE = 35582          data.asm:33 (unused)
+SINextFreeCode              = $8AF2 = 35570          data.asm:20
+SINextFreeCodePage          = $8AF4 = 35572          data.asm:22
+SIPageUsage                 = $8AFA = 35578          data.asm:30 (unused)
+SIStack                     = $8B02 = 35586          data.asm:36
 SourceFirstPage             = $0022 =    34          kernel.asm:18
 SourcePages                 = $0040 =    64          kernel.asm:19
 StackTop                    = $7EFC = 32508          kernel.asm:26
-SystemInformationTable      = $8AA0 = 35488          data.asm:18
+SystemInformationTable      = $8AF2 = 35570          data.asm:18
 __BUFDiv32                  = $849A = 33946          buffer.asm:21
-__COMCBExit                 = $8577 = 34167          compiler.asm:66
-__COMCBNext                 = $856F = 34159          compiler.asm:59
-__COMCBOut                  = $857A = 34170          compiler.asm:69
-__COMCBTag                  = $8550 = 34128          compiler.asm:43
+__COMCBError                = $857E = 34174          compiler.asm:75 (unused)
+__COMCBExit                 = $8584 = 34180          compiler.asm:81
+__COMCBNext                 = $8576 = 34166          compiler.asm:68
+__COMCBOut                  = $8587 = 34183          compiler.asm:84
+__COMCBTag                  = $8557 = 34135          compiler.asm:52
+__COMW_CVOut                = $85D0 = 34256          compiler.asm:202
+__COMW_CallHL               = $85D3 = 34259          compiler.asm:208
 __CONConFail                = $8523 = 34083          constant.asm:77
 __CONConvLoop               = $84ED = 34029          constant.asm:28
 __CONMinusExit              = $8510 = 34064          constant.asm:57
@@ -2835,9 +2970,9 @@ __GFXWCExit                 = $8129 = 33065          graphics.asm:88
 __GFXWHByte                 = $8142 = 33090          graphics.asm:119
 __GFXWHDigit                = $8158 = 33112          graphics.asm:133
 __GFXWHNibble               = $814F = 33103          graphics.asm:127
-__IsNonZero                 = $8763 = 34659          __words.asm:856
-__IsPositive                = $875A = 34650          __words.asm:837
-__IsPositive2               = $876C = 34668          __words.asm:874
+__IsNonZero                 = $87B5 = 34741          __words.asm:856
+__IsPositive                = $87AC = 34732          __words.asm:837
+__IsPositive2               = $87BE = 34750          __words.asm:874
 __L2Exit                    = $8343 = 33603          screen_layer2.asm:136
 __L2Loop                    = $8334 = 33588          screen_layer2.asm:123
 __L2Not1                    = $82F9 = 33529          screen_layer2.asm:76
@@ -2846,10 +2981,10 @@ __L2Not3                    = $8305 = 33541          screen_layer2.asm:84
 __L2NotSet                  = $833A = 33594          screen_layer2.asm:128
 __L2Outer                   = $832C = 33580          screen_layer2.asm:118
 __LPExit                    = $83C8 = 33736          screen_lores.asm:120
-__LessDifferentSigns        = $85E4 = 34276          __words.asm:198
-__LessExit                  = $85EB = 34283          __words.asm:204
-__LessFalse                 = $85DF = 34271          __words.asm:194
-__LessTrue                  = $85E8 = 34280          __words.asm:202
+__LessDifferentSigns        = $8636 = 34358          __words.asm:198
+__LessExit                  = $863D = 34365          __words.asm:204
+__LessFalse                 = $8631 = 34353          __words.asm:194
+__LessTrue                  = $863A = 34362          __words.asm:202
 __LowLoop                   = $83B4 = 33716          screen_lores.asm:104
 __LowNotLower2              = $83AA = 33706          screen_lores.asm:97
 __LowNotSet                 = $83BA = 33722          screen_lores.asm:109
@@ -2859,8 +2994,8 @@ __ZXWCExit                  = $82AE = 33454          screen48k.asm:107
 ___kr4                      = $81B4 = 33204          keyboard.asm:49
 __cs1                       = $8260 = 33376          screen48k.asm:29
 __cs2                       = $8268 = 33384          screen48k.asm:34
-__fill1                     = $8664 = 34404          __words.asm:428
-__fill2                     = $866B = 34411          __words.asm:434
+__fill1                     = $86B6 = 34486          __words.asm:428
+__fill2                     = $86BD = 34493          __words.asm:434
 __kr1                       = $8198 = 33176          keyboard.asm:32
 __kr2                       = $81A3 = 33187          keyboard.asm:38
 __kr3                       = $81A5 = 33189          keyboard.asm:41
@@ -2869,170 +3004,170 @@ __kr_keypressed             = $81CE = 33230          keyboard.asm:73
 __kr_no_shift_table         = $81D8 = 33240          keyboard.asm:94
 __kr_shift_table            = $8228 = 33320          keyboard.asm:106
 __kr_symbol_shift_table     = $8200 = 33280          keyboard.asm:100
-__move2                     = $868D = 34445          __words.asm:480
-__move3                     = $8686 = 34438          __words.asm:472
+__move2                     = $86DF = 34527          __words.asm:480
+__move3                     = $86D8 = 34520          __words.asm:472
 _end                        = $C001 = 49153          kernel.asm:27 (unused)
 _size                       = $4001 = 16385          kernel.asm:27 (unused)
-cforth_21_end               = $8637 = 34359          __words.asm:359
-cforth_21_forth             = $8630 = 34352          __words.asm:348 (unused)
-cforth_21_macro             = $8639 = 34361          __words.asm:361 (unused)
-cforth_21_start             = $8632 = 34354          __words.asm:350
-cforth_2a_end               = $8589 = 34185          __words.asm:27 (unused)
-cforth_2a_forth             = $8582 = 34178          __words.asm:18 (unused)
-cforth_2a_start             = $8584 = 34180          __words.asm:20 (unused)
-cforth_2b_21_end            = $864D = 34381          __words.asm:387 (unused)
-cforth_2b_21_forth          = $8641 = 34369          __words.asm:371 (unused)
-cforth_2b_21_start          = $8643 = 34371          __words.asm:373 (unused)
-cforth_2b_2b_2b_end         = $8722 = 34594          __words.asm:738
-cforth_2b_2b_2b_forth       = $8720 = 34592          __words.asm:731 (unused)
-cforth_2b_2b_2b_macro       = $8723 = 34595          __words.asm:740 (unused)
-cforth_2b_2b_2b_start       = $8720 = 34592          __words.asm:732
-cforth_2b_2b_end            = $8717 = 34583          __words.asm:719
-cforth_2b_2b_forth          = $8716 = 34582          __words.asm:713 (unused)
-cforth_2b_2b_macro          = $8718 = 34584          __words.asm:721 (unused)
-cforth_2b_2b_start          = $8716 = 34582          __words.asm:714
-cforth_2b_6f_72_end         = $85CE = 34254          __words.asm:161 (unused)
-cforth_2b_6f_72_forth       = $85C6 = 34246          __words.asm:148 (unused)
-cforth_2b_6f_72_start       = $85C7 = 34247          __words.asm:150 (unused)
-cforth_2b_end               = $85AA = 34218          __words.asm:94
-cforth_2b_forth             = $85A5 = 34213          __words.asm:85 (unused)
-cforth_2b_macro             = $85AC = 34220          __words.asm:96 (unused)
-cforth_2b_start             = $85A7 = 34215          __words.asm:87
-cforth_2d_2d_2d_end         = $8737 = 34615          __words.asm:775
-cforth_2d_2d_2d_forth       = $8735 = 34613          __words.asm:768 (unused)
-cforth_2d_2d_2d_macro       = $8738 = 34616          __words.asm:777 (unused)
-cforth_2d_2d_2d_start       = $8735 = 34613          __words.asm:769
-cforth_2d_2d_end            = $872C = 34604          __words.asm:756
-cforth_2d_2d_forth          = $872B = 34603          __words.asm:750 (unused)
-cforth_2d_2d_macro          = $872D = 34605          __words.asm:758 (unused)
-cforth_2d_2d_start          = $872B = 34603          __words.asm:751
-cforth_2d_end               = $8746 = 34630          __words.asm:798 (unused)
-cforth_2d_forth             = $8740 = 34624          __words.asm:787 (unused)
-cforth_2d_start             = $8740 = 34624          __words.asm:788 (unused)
-cforth_2f_6d_6f_64_end      = $85A3 = 34211          __words.asm:77 (unused)
-cforth_2f_6d_6f_64_forth    = $859C = 34204          __words.asm:68 (unused)
-cforth_2f_6d_6f_64_start    = $859E = 34206          __words.asm:70 (unused)
-cforth_2f_end               = $8591 = 34193          __words.asm:43 (unused)
-cforth_2f_forth             = $858B = 34187          __words.asm:35 (unused)
-cforth_2f_start             = $858D = 34189          __words.asm:37 (unused)
-cforth_30_3c_end            = $876C = 34668          __words.asm:878 (unused)
-cforth_30_3c_forth          = $8764 = 34660          __words.asm:868 (unused)
-cforth_30_3c_start          = $8764 = 34660          __words.asm:869 (unused)
-cforth_30_3d_end            = $8763 = 34659          __words.asm:860 (unused)
-cforth_30_3d_forth          = $875B = 34651          __words.asm:849 (unused)
-cforth_30_3d_start          = $875B = 34651          __words.asm:850 (unused)
-cforth_31_2c_end            = $878C = 34700          __words.asm:955 (unused)
-cforth_31_2c_forth          = $8786 = 34694          __words.asm:946 (unused)
-cforth_31_2c_start          = $8787 = 34695          __words.asm:948 (unused)
-cforth_32_2a_end            = $8700 = 34560          __words.asm:682
-cforth_32_2a_forth          = $86FD = 34557          __words.asm:674 (unused)
-cforth_32_2a_macro          = $8701 = 34561          __words.asm:684 (unused)
-cforth_32_2a_start          = $86FD = 34557          __words.asm:675
-cforth_32_2c_end            = $8793 = 34707          __words.asm:972 (unused)
-cforth_32_2c_forth          = $878D = 34701          __words.asm:963 (unused)
-cforth_32_2c_start          = $878E = 34702          __words.asm:965 (unused)
-cforth_32_2f_end            = $870D = 34573          __words.asm:701
-cforth_32_2f_forth          = $8709 = 34569          __words.asm:694 (unused)
-cforth_32_2f_macro          = $870E = 34574          __words.asm:703 (unused)
-cforth_32_2f_start          = $8709 = 34569          __words.asm:695
-cforth_40_end               = $8608 = 34312          __words.asm:293
-cforth_40_forth             = $8602 = 34306          __words.asm:283 (unused)
-cforth_40_macro             = $860A = 34314          __words.asm:295 (unused)
-cforth_40_start             = $8604 = 34308          __words.asm:285
-cforth_61_62_73_end         = $875A = 34650          __words.asm:841 (unused)
-cforth_61_62_73_forth       = $874F = 34639          __words.asm:826 (unused)
-cforth_61_62_73_start       = $874F = 34639          __words.asm:827 (unused)
-cforth_61_6e_64_end         = $85BC = 34236          __words.asm:119 (unused)
-cforth_61_6e_64_forth       = $85B4 = 34228          __words.asm:106 (unused)
-cforth_61_6e_64_start       = $85B5 = 34229          __words.asm:108 (unused)
-cforth_62_72_65_61_6b_end   = $877D = 34685          __words.asm:934
-cforth_62_72_65_61_6b_forth = $877B = 34683          __words.asm:928 (unused)
-cforth_62_72_65_61_6b_macro = $877E = 34686          __words.asm:936 (unused)
-cforth_62_72_65_61_6b_start = $877B = 34683          __words.asm:929
-cforth_62_73_77_61_70_end   = $86F4 = 34548          __words.asm:662
-cforth_62_73_77_61_70_forth = $86F1 = 34545          __words.asm:654 (unused)
-cforth_62_73_77_61_70_macro = $86F5 = 34549          __words.asm:664 (unused)
-cforth_62_73_77_61_70_start = $86F1 = 34545          __words.asm:655
-cforth_63_21_end            = $8626 = 34342          __words.asm:336
-cforth_63_21_forth          = $8620 = 34336          __words.asm:326 (unused)
-cforth_63_21_macro          = $8628 = 34344          __words.asm:338 (unused)
-cforth_63_21_start          = $8622 = 34338          __words.asm:328
-cforth_63_40_end            = $8617 = 34327          __words.asm:314
-cforth_63_40_forth          = $8612 = 34322          __words.asm:305 (unused)
-cforth_63_40_macro          = $8618 = 34328          __words.asm:316 (unused)
-cforth_63_40_start          = $8613 = 34323          __words.asm:307
-cforth_64_72_6f_70_end      = $86B2 = 34482          __words.asm:553
-cforth_64_72_6f_70_forth    = $86B0 = 34480          __words.asm:546 (unused)
-cforth_64_72_6f_70_macro    = $86B3 = 34483          __words.asm:555 (unused)
-cforth_64_72_6f_70_start    = $86B1 = 34481          __words.asm:548
-cforth_64_75_70_end         = $86BD = 34493          __words.asm:572
-cforth_64_75_70_forth       = $86BB = 34491          __words.asm:565 (unused)
-cforth_64_75_70_macro       = $86BE = 34494          __words.asm:574 (unused)
-cforth_64_75_70_start       = $86BC = 34492          __words.asm:567
-cforth_66_69_6c_6c_end      = $866C = 34412          __words.asm:439 (unused)
-cforth_66_69_6c_6c_forth    = $865C = 34396          __words.asm:418 (unused)
-cforth_66_69_6c_6c_start    = $865E = 34398          __words.asm:420 (unused)
-cforth_66_6f_72_74_68_end   = $8799 = 34713          __words.asm:989 (unused)
-cforth_66_6f_72_74_68_forth = $8794 = 34708          __words.asm:982 (unused)
-cforth_66_6f_72_74_68_start = $8794 = 34708          __words.asm:983 (unused)
-cforth_68_61_6c_74_end      = $877A = 34682          __words.asm:920 (unused)
-cforth_68_61_6c_74_forth    = $8776 = 34678          __words.asm:912 (unused)
-cforth_68_61_6c_74_start    = $8777 = 34679          __words.asm:914 (unused)
-cforth_69_6e_6b_65_79_end   = $8775 = 34677          __words.asm:904 (unused)
-cforth_69_6e_6b_65_79_forth = $876D = 34669          __words.asm:894 (unused)
-cforth_69_6e_6b_65_79_start = $876E = 34670          __words.asm:896 (unused)
-cforth_6c_65_73_73_end      = $85EB = 34283          __words.asm:209 (unused)
-cforth_6c_65_73_73_forth    = $85CF = 34255          __words.asm:178 (unused)
-cforth_6c_65_73_73_start    = $85D1 = 34257          __words.asm:180 (unused)
-cforth_6d_61_63_72_6f_end   = $879F = 34719          __words.asm:1004 (unused)
-cforth_6d_61_63_72_6f_forth = $879A = 34714          __words.asm:997 (unused)
-cforth_6d_61_63_72_6f_start = $879A = 34714          __words.asm:998 (unused)
-cforth_6d_6f_64_end         = $859A = 34202          __words.asm:60 (unused)
-cforth_6d_6f_64_forth       = $8593 = 34195          __words.asm:51 (unused)
-cforth_6d_6f_64_start       = $8595 = 34197          __words.asm:53 (unused)
-cforth_6d_6f_76_65_end      = $868E = 34446          __words.asm:485 (unused)
-cforth_6d_6f_76_65_forth    = $866E = 34414          __words.asm:447 (unused)
-cforth_6d_6f_76_65_start    = $8670 = 34416          __words.asm:449 (unused)
-cforth_6e_65_67_61_74_65_end = $874E = 34638          __words.asm:818 (unused)
-cforth_6e_65_67_61_74_65_forth = $8747 = 34631          __words.asm:806 (unused)
-cforth_6e_65_67_61_74_65_start = $8747 = 34631          __words.asm:807 (unused)
-cforth_6e_69_70_end         = $86C9 = 34505          __words.asm:591
-cforth_6e_69_70_forth       = $86C6 = 34502          __words.asm:584 (unused)
-cforth_6e_69_70_macro       = $86CB = 34507          __words.asm:593 (unused)
-cforth_6e_69_70_start       = $86C8 = 34504          __words.asm:586
-cforth_6f_72_21_end         = $865A = 34394          __words.asm:410 (unused)
-cforth_6f_72_21_forth       = $864F = 34383          __words.asm:395 (unused)
-cforth_6f_72_21_start       = $8651 = 34385          __words.asm:397 (unused)
-cforth_6f_72_end            = $85C5 = 34245          __words.asm:140 (unused)
-cforth_6f_72_forth          = $85BD = 34237          __words.asm:127 (unused)
-cforth_6f_72_start          = $85BE = 34238          __words.asm:129 (unused)
-cforth_6f_76_65_72_end      = $86D8 = 34520          __words.asm:612
-cforth_6f_76_65_72_forth    = $86D3 = 34515          __words.asm:603 (unused)
-cforth_6f_76_65_72_macro    = $86DA = 34522          __words.asm:614 (unused)
-cforth_6f_76_65_72_start    = $86D5 = 34517          __words.asm:605
-cforth_70_21_end            = $86A7 = 34471          __words.asm:526
-cforth_70_21_forth          = $86A0 = 34464          __words.asm:515 (unused)
-cforth_70_21_macro          = $86A8 = 34472          __words.asm:528 (unused)
-cforth_70_21_start          = $86A1 = 34465          __words.asm:517
-cforth_70_40_end            = $8697 = 34455          __words.asm:503
-cforth_70_40_forth          = $8690 = 34448          __words.asm:493 (unused)
-cforth_70_40_macro          = $8698 = 34456          __words.asm:505 (unused)
-cforth_70_40_start          = $8691 = 34449          __words.asm:495
-cforth_73_63_72_65_65_6e_21_end = $8600 = 34304          __words.asm:266 (unused)
-cforth_73_63_72_65_65_6e_21_forth = $85F8 = 34296          __words.asm:256 (unused)
-cforth_73_63_72_65_65_6e_21_start = $85FA = 34298          __words.asm:258 (unused)
-cforth_73_63_72_65_65_6e_2e_63_6c_65_61_72_end = $85F7 = 34295          __words.asm:248 (unused)
-cforth_73_63_72_65_65_6e_2e_63_6c_65_61_72_forth = $85F4 = 34292          __words.asm:242 (unused)
-cforth_73_63_72_65_65_6e_2e_63_6c_65_61_72_start = $85F4 = 34292          __words.asm:243 (unused)
-cforth_73_63_72_65_65_6e_2e_6d_6f_64_65_end = $85F3 = 34291          __words.asm:234 (unused)
-cforth_73_63_72_65_65_6e_2e_6d_6f_64_65_forth = $85ED = 34285          __words.asm:225 (unused)
-cforth_73_63_72_65_65_6e_2e_6d_6f_64_65_start = $85EE = 34286          __words.asm:227 (unused)
-cforth_73_77_61_70_end      = $86E7 = 34535          __words.asm:633
-cforth_73_77_61_70_forth    = $86E2 = 34530          __words.asm:624 (unused)
-cforth_73_77_61_70_macro    = $86E9 = 34537          __words.asm:635 (unused)
-cforth_73_77_61_70_start    = $86E4 = 34532          __words.asm:626
-w1                          = $8532 = 34098          compiler.asm:15
+cforth_21_end               = $8689 = 34441          __words.asm:359
+cforth_21_forth             = $8682 = 34434          __words.asm:348 (unused)
+cforth_21_macro             = $868B = 34443          __words.asm:361 (unused)
+cforth_21_start             = $8684 = 34436          __words.asm:350
+cforth_2a_end               = $85DB = 34267          __words.asm:27 (unused)
+cforth_2a_forth             = $85D4 = 34260          __words.asm:18 (unused)
+cforth_2a_start             = $85D6 = 34262          __words.asm:20 (unused)
+cforth_2b_21_end            = $869F = 34463          __words.asm:387 (unused)
+cforth_2b_21_forth          = $8693 = 34451          __words.asm:371 (unused)
+cforth_2b_21_start          = $8695 = 34453          __words.asm:373 (unused)
+cforth_2b_2b_2b_end         = $8774 = 34676          __words.asm:738
+cforth_2b_2b_2b_forth       = $8772 = 34674          __words.asm:731 (unused)
+cforth_2b_2b_2b_macro       = $8775 = 34677          __words.asm:740 (unused)
+cforth_2b_2b_2b_start       = $8772 = 34674          __words.asm:732
+cforth_2b_2b_end            = $8769 = 34665          __words.asm:719
+cforth_2b_2b_forth          = $8768 = 34664          __words.asm:713 (unused)
+cforth_2b_2b_macro          = $876A = 34666          __words.asm:721 (unused)
+cforth_2b_2b_start          = $8768 = 34664          __words.asm:714
+cforth_2b_6f_72_end         = $8620 = 34336          __words.asm:161 (unused)
+cforth_2b_6f_72_forth       = $8618 = 34328          __words.asm:148 (unused)
+cforth_2b_6f_72_start       = $8619 = 34329          __words.asm:150 (unused)
+cforth_2b_end               = $85FC = 34300          __words.asm:94
+cforth_2b_forth             = $85F7 = 34295          __words.asm:85 (unused)
+cforth_2b_macro             = $85FE = 34302          __words.asm:96 (unused)
+cforth_2b_start             = $85F9 = 34297          __words.asm:87
+cforth_2d_2d_2d_end         = $8789 = 34697          __words.asm:775
+cforth_2d_2d_2d_forth       = $8787 = 34695          __words.asm:768 (unused)
+cforth_2d_2d_2d_macro       = $878A = 34698          __words.asm:777 (unused)
+cforth_2d_2d_2d_start       = $8787 = 34695          __words.asm:769
+cforth_2d_2d_end            = $877E = 34686          __words.asm:756
+cforth_2d_2d_forth          = $877D = 34685          __words.asm:750 (unused)
+cforth_2d_2d_macro          = $877F = 34687          __words.asm:758 (unused)
+cforth_2d_2d_start          = $877D = 34685          __words.asm:751
+cforth_2d_end               = $8798 = 34712          __words.asm:798 (unused)
+cforth_2d_forth             = $8792 = 34706          __words.asm:787 (unused)
+cforth_2d_start             = $8792 = 34706          __words.asm:788 (unused)
+cforth_2f_6d_6f_64_end      = $85F5 = 34293          __words.asm:77 (unused)
+cforth_2f_6d_6f_64_forth    = $85EE = 34286          __words.asm:68 (unused)
+cforth_2f_6d_6f_64_start    = $85F0 = 34288          __words.asm:70 (unused)
+cforth_2f_end               = $85E3 = 34275          __words.asm:43 (unused)
+cforth_2f_forth             = $85DD = 34269          __words.asm:35 (unused)
+cforth_2f_start             = $85DF = 34271          __words.asm:37 (unused)
+cforth_30_3c_end            = $87BE = 34750          __words.asm:878 (unused)
+cforth_30_3c_forth          = $87B6 = 34742          __words.asm:868 (unused)
+cforth_30_3c_start          = $87B6 = 34742          __words.asm:869 (unused)
+cforth_30_3d_end            = $87B5 = 34741          __words.asm:860 (unused)
+cforth_30_3d_forth          = $87AD = 34733          __words.asm:849 (unused)
+cforth_30_3d_start          = $87AD = 34733          __words.asm:850 (unused)
+cforth_31_2c_end            = $87DE = 34782          __words.asm:955 (unused)
+cforth_31_2c_forth          = $87D8 = 34776          __words.asm:946 (unused)
+cforth_31_2c_start          = $87D9 = 34777          __words.asm:948 (unused)
+cforth_32_2a_end            = $8752 = 34642          __words.asm:682
+cforth_32_2a_forth          = $874F = 34639          __words.asm:674 (unused)
+cforth_32_2a_macro          = $8753 = 34643          __words.asm:684 (unused)
+cforth_32_2a_start          = $874F = 34639          __words.asm:675
+cforth_32_2c_end            = $87E5 = 34789          __words.asm:972 (unused)
+cforth_32_2c_forth          = $87DF = 34783          __words.asm:963 (unused)
+cforth_32_2c_start          = $87E0 = 34784          __words.asm:965 (unused)
+cforth_32_2f_end            = $875F = 34655          __words.asm:701
+cforth_32_2f_forth          = $875B = 34651          __words.asm:694 (unused)
+cforth_32_2f_macro          = $8760 = 34656          __words.asm:703 (unused)
+cforth_32_2f_start          = $875B = 34651          __words.asm:695
+cforth_40_end               = $865A = 34394          __words.asm:293
+cforth_40_forth             = $8654 = 34388          __words.asm:283 (unused)
+cforth_40_macro             = $865C = 34396          __words.asm:295 (unused)
+cforth_40_start             = $8656 = 34390          __words.asm:285
+cforth_61_62_73_end         = $87AC = 34732          __words.asm:841 (unused)
+cforth_61_62_73_forth       = $87A1 = 34721          __words.asm:826 (unused)
+cforth_61_62_73_start       = $87A1 = 34721          __words.asm:827 (unused)
+cforth_61_6e_64_end         = $860E = 34318          __words.asm:119 (unused)
+cforth_61_6e_64_forth       = $8606 = 34310          __words.asm:106 (unused)
+cforth_61_6e_64_start       = $8607 = 34311          __words.asm:108 (unused)
+cforth_62_72_65_61_6b_end   = $87CF = 34767          __words.asm:934
+cforth_62_72_65_61_6b_forth = $87CD = 34765          __words.asm:928 (unused)
+cforth_62_72_65_61_6b_macro = $87D0 = 34768          __words.asm:936 (unused)
+cforth_62_72_65_61_6b_start = $87CD = 34765          __words.asm:929
+cforth_62_73_77_61_70_end   = $8746 = 34630          __words.asm:662
+cforth_62_73_77_61_70_forth = $8743 = 34627          __words.asm:654 (unused)
+cforth_62_73_77_61_70_macro = $8747 = 34631          __words.asm:664 (unused)
+cforth_62_73_77_61_70_start = $8743 = 34627          __words.asm:655
+cforth_63_21_end            = $8678 = 34424          __words.asm:336
+cforth_63_21_forth          = $8672 = 34418          __words.asm:326 (unused)
+cforth_63_21_macro          = $867A = 34426          __words.asm:338 (unused)
+cforth_63_21_start          = $8674 = 34420          __words.asm:328
+cforth_63_40_end            = $8669 = 34409          __words.asm:314
+cforth_63_40_forth          = $8664 = 34404          __words.asm:305 (unused)
+cforth_63_40_macro          = $866A = 34410          __words.asm:316 (unused)
+cforth_63_40_start          = $8665 = 34405          __words.asm:307
+cforth_64_72_6f_70_end      = $8704 = 34564          __words.asm:553
+cforth_64_72_6f_70_forth    = $8702 = 34562          __words.asm:546 (unused)
+cforth_64_72_6f_70_macro    = $8705 = 34565          __words.asm:555 (unused)
+cforth_64_72_6f_70_start    = $8703 = 34563          __words.asm:548
+cforth_64_75_70_end         = $870F = 34575          __words.asm:572
+cforth_64_75_70_forth       = $870D = 34573          __words.asm:565 (unused)
+cforth_64_75_70_macro       = $8710 = 34576          __words.asm:574 (unused)
+cforth_64_75_70_start       = $870E = 34574          __words.asm:567
+cforth_66_69_6c_6c_end      = $86BE = 34494          __words.asm:439 (unused)
+cforth_66_69_6c_6c_forth    = $86AE = 34478          __words.asm:418 (unused)
+cforth_66_69_6c_6c_start    = $86B0 = 34480          __words.asm:420 (unused)
+cforth_66_6f_72_74_68_end   = $87EB = 34795          __words.asm:989 (unused)
+cforth_66_6f_72_74_68_forth = $87E6 = 34790          __words.asm:982 (unused)
+cforth_66_6f_72_74_68_start = $87E6 = 34790          __words.asm:983 (unused)
+cforth_68_61_6c_74_end      = $87CC = 34764          __words.asm:920 (unused)
+cforth_68_61_6c_74_forth    = $87C8 = 34760          __words.asm:912 (unused)
+cforth_68_61_6c_74_start    = $87C9 = 34761          __words.asm:914 (unused)
+cforth_69_6e_6b_65_79_end   = $87C7 = 34759          __words.asm:904 (unused)
+cforth_69_6e_6b_65_79_forth = $87BF = 34751          __words.asm:894 (unused)
+cforth_69_6e_6b_65_79_start = $87C0 = 34752          __words.asm:896 (unused)
+cforth_6c_65_73_73_end      = $863D = 34365          __words.asm:209 (unused)
+cforth_6c_65_73_73_forth    = $8621 = 34337          __words.asm:178 (unused)
+cforth_6c_65_73_73_start    = $8623 = 34339          __words.asm:180 (unused)
+cforth_6d_61_63_72_6f_end   = $87F1 = 34801          __words.asm:1004 (unused)
+cforth_6d_61_63_72_6f_forth = $87EC = 34796          __words.asm:997 (unused)
+cforth_6d_61_63_72_6f_start = $87EC = 34796          __words.asm:998 (unused)
+cforth_6d_6f_64_end         = $85EC = 34284          __words.asm:60 (unused)
+cforth_6d_6f_64_forth       = $85E5 = 34277          __words.asm:51 (unused)
+cforth_6d_6f_64_start       = $85E7 = 34279          __words.asm:53 (unused)
+cforth_6d_6f_76_65_end      = $86E0 = 34528          __words.asm:485 (unused)
+cforth_6d_6f_76_65_forth    = $86C0 = 34496          __words.asm:447 (unused)
+cforth_6d_6f_76_65_start    = $86C2 = 34498          __words.asm:449 (unused)
+cforth_6e_65_67_61_74_65_end = $87A0 = 34720          __words.asm:818 (unused)
+cforth_6e_65_67_61_74_65_forth = $8799 = 34713          __words.asm:806 (unused)
+cforth_6e_65_67_61_74_65_start = $8799 = 34713          __words.asm:807 (unused)
+cforth_6e_69_70_end         = $871B = 34587          __words.asm:591
+cforth_6e_69_70_forth       = $8718 = 34584          __words.asm:584 (unused)
+cforth_6e_69_70_macro       = $871D = 34589          __words.asm:593 (unused)
+cforth_6e_69_70_start       = $871A = 34586          __words.asm:586
+cforth_6f_72_21_end         = $86AC = 34476          __words.asm:410 (unused)
+cforth_6f_72_21_forth       = $86A1 = 34465          __words.asm:395 (unused)
+cforth_6f_72_21_start       = $86A3 = 34467          __words.asm:397 (unused)
+cforth_6f_72_end            = $8617 = 34327          __words.asm:140 (unused)
+cforth_6f_72_forth          = $860F = 34319          __words.asm:127 (unused)
+cforth_6f_72_start          = $8610 = 34320          __words.asm:129 (unused)
+cforth_6f_76_65_72_end      = $872A = 34602          __words.asm:612
+cforth_6f_76_65_72_forth    = $8725 = 34597          __words.asm:603 (unused)
+cforth_6f_76_65_72_macro    = $872C = 34604          __words.asm:614 (unused)
+cforth_6f_76_65_72_start    = $8727 = 34599          __words.asm:605
+cforth_70_21_end            = $86F9 = 34553          __words.asm:526
+cforth_70_21_forth          = $86F2 = 34546          __words.asm:515 (unused)
+cforth_70_21_macro          = $86FA = 34554          __words.asm:528 (unused)
+cforth_70_21_start          = $86F3 = 34547          __words.asm:517
+cforth_70_40_end            = $86E9 = 34537          __words.asm:503
+cforth_70_40_forth          = $86E2 = 34530          __words.asm:493 (unused)
+cforth_70_40_macro          = $86EA = 34538          __words.asm:505 (unused)
+cforth_70_40_start          = $86E3 = 34531          __words.asm:495
+cforth_73_63_72_65_65_6e_21_end = $8652 = 34386          __words.asm:266 (unused)
+cforth_73_63_72_65_65_6e_21_forth = $864A = 34378          __words.asm:256 (unused)
+cforth_73_63_72_65_65_6e_21_start = $864C = 34380          __words.asm:258 (unused)
+cforth_73_63_72_65_65_6e_2e_63_6c_65_61_72_end = $8649 = 34377          __words.asm:248 (unused)
+cforth_73_63_72_65_65_6e_2e_63_6c_65_61_72_forth = $8646 = 34374          __words.asm:242 (unused)
+cforth_73_63_72_65_65_6e_2e_63_6c_65_61_72_start = $8646 = 34374          __words.asm:243 (unused)
+cforth_73_63_72_65_65_6e_2e_6d_6f_64_65_end = $8645 = 34373          __words.asm:234 (unused)
+cforth_73_63_72_65_65_6e_2e_6d_6f_64_65_forth = $863F = 34367          __words.asm:225 (unused)
+cforth_73_63_72_65_65_6e_2e_6d_6f_64_65_start = $8640 = 34368          __words.asm:227 (unused)
+cforth_73_77_61_70_end      = $8739 = 34617          __words.asm:633
+cforth_73_77_61_70_forth    = $8734 = 34612          __words.asm:624 (unused)
+cforth_73_77_61_70_macro    = $873B = 34619          __words.asm:635 (unused)
+cforth_73_77_61_70_start    = $8736 = 34614          __words.asm:626
+w1                          = $8539 = 34105          compiler.asm:20
 
 
-total time: 0.0097 sec.
+total time: 0.0091 sec.
 no errors
