@@ -3,7 +3,7 @@
 ;
 ;		File:		multiply.asm
 ;		Purpose:	16 bit unsigned multiply
-;		Date : 		22nd November 2018
+;		Date : 		15th November 2018
 ;		Author:		paul@robsons.org.uk
 ;
 ; *********************************************************************************

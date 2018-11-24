@@ -3,7 +3,7 @@
 ;
 ;		Name : 		farmemory.asm
 ;		Author :	paul@robsons.org.uk
-;		Date : 		22nd November 2018
+;		Date : 		15th November 2018
 ;		Purpose :	Kernel - Far memory routines.
 ;
 ; ***************************************************************************************
@@ -14,7 +14,10 @@
 ;								Byte compile far memory A
 ;
 ; ***********************************************************************************************
-	
+
+FARCompileByteL:
+		ld 		a,l
+		
 FARCompileByte:
 		push 	af 									; save byte and HL
 		push 	hl

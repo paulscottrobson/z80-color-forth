@@ -3,7 +3,7 @@
 ;
 ;		Name : 		paging.asm
 ;		Author :	paul@robsons.org.uk
-;		Date : 		22nd November 2018
+;		Date : 		15th November 2018
 ;		Purpose :	Paging Manager
 ;
 ; ***************************************************************************************
@@ -70,7 +70,7 @@ PAGERestore:
 		inc 	a
 		db 		$ED,$92,$57
 		dec 	a
-		ex 		af,af' 								; reset A'
+		ex 		af,af' 								; update A'
 		pop 	hl
 		pop 	af
 		ret

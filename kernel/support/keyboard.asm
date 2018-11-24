@@ -3,7 +3,7 @@
 ;
 ;		File:		keyboard.asm
 ;		Purpose:	Spectrum Keyboard Interface
-;		Date : 		22nd November 2018
+;		Date : 		15th November 2018
 ;		Author:		paul@robsons.org.uk
 ;
 ; *********************************************************************************
@@ -89,7 +89,7 @@ __kr_exit:
 ;	$FEFE-$7FFE scan, bit 0-4, active low
 ;
 ;	8:Backspace 13:Return 20-23:Left Down Up Right 
-;	27:Break 32-95: Std ASCII
+;	27:Break 32-127: Std ASCII all L/C
 ;
 __kr_no_shift_table:
 		db 		0,  'z','x','c','v',			'a','s','d','f','g'

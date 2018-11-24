@@ -1,5 +1,9 @@
 TODO
+
+- Write and test compiler. (Green, Yellow Red, Magenta).   Not re-entrant.
+- re-entrancy block for the compiler. 
 - Stack Dump.
-- Write and test compiler. (Green, Yellow Red, Magenta)
-- The importer needs to detect not assume the bootstrap.
-- Paging
+- imagelib needs to get info from page table
+- command line design.
+- Paging calls
+- to be reset on error : stack, compiler re-entrancy block, page stack, paging call mechanism

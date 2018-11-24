@@ -16,7 +16,8 @@ from imagelib import *
 image = ColorForthImage()
 sysinfo = image.getSysInfo()
 print("Dictionary Page           ${0:02x}".format(image.dictionaryPage()))
-print("Bootstrap Page            ${0:02x}".format(image.bootstrapPage()))
+srcInfo = image.sourcePageInfo()
+print("Editor Pages start at     ${0:02x} ({1} screens,{2} pages)".format(srcInfo[0],srcInfo[1],srcInfo[1] >> 5))
 p = image.read(0,sysinfo+2)
 a = image.read(0,sysinfo+0)+image.read(0,sysinfo+1)*256
 print("Free Code is at           ${0:02x} ${1:04x}".format(p,a))

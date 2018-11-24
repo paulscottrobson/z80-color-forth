@@ -30,10 +30,10 @@ class ColorForthImage(object):
 	def dictionaryPage(self):
 		return 0x20
 	#
-	#		Return bootstrap page
+	#		Return editor pages information
 	#
-	def bootstrapPage(self):
-		return 0x22
+	def sourcePageInfo(self):
+		return [0x22,64]
 	#
 	#		Return current page and address for next free code.
 	#

@@ -3,18 +3,27 @@
 ;
 ;		Name : 		kernel.asm
 ;		Author :	Paul Robson (paul@robsons.org.uk)
-;		Date : 		22nd November 2018
-;		Purpose :	Color Forth Kernel
+;		Date : 		16th November 2018
+;		Purpose :	FlatColorForth Kernel
 ;
 ; ***************************************************************************************
 ; ***************************************************************************************
 
-EditBuffer = $7B08 									; 512 byte edit buffer to $7B00-$7D10
-StackTop = $7EFC 									; Top of stack
 
-DictionaryPage = $20 								; $20 dictionary page
-													; $22 is screens 0..31 bootstrap loading
-FirstCodePage = $24 								; $24 first page of actual code.
+;
+;		Page allocation. These need to match up with those given in the page table
+;		in data.asm
+;													
+DictionaryPage = $20 								; dictionary page
+SourceFirstPage = $22 								; bootstrap page
+SourcePages = 64
+FirstCodePage = SourceFirstPage + SourcePages/16	; first page of actual code.
+								
+;
+;		Memory allocated from the Unused space in $4000-$7FFF
+;
+EditBuffer = $7B08 									; $7B00-$7D20 512 byte edit buffer
+StackTop = $7EFC 									;      -$7EFC Top of stack
 
 		org 	$8000 								; $8000 boot.
 		jr 		Boot
@@ -25,7 +34,6 @@ Boot:	ld 		sp,(SIStack)						; reset Z80 Stack
 		di											; disable interrupts
 	
 		db 		$ED,$91,7,2							; set turbo port (7) to 2 (14Mhz speed)
-		
 		ld 		l,0 								; set graphics mode 0 (48k Spectrum)
 		call 	GFXMode
 
@@ -37,13 +45,12 @@ Boot:	ld 		sp,(SIStack)						; reset Z80 Stack
 ErrorHandler:
 		jr 		ErrorHandler
 
-HaltZ80:di 											; stop everything.
+HaltZ80:di
 		halt
 		jr 		HaltZ80
 
 		include "support/paging.asm" 				; page switcher (not while executing)
 		include "support/farmemory.asm" 			; far memory routines
-		include "support/utilities.asm" 			; support utility functions
 		include "support/divide.asm" 				; division
 		include "support/multiply.asm" 				; multiplication
 		include "support/graphics.asm" 				; common graphics
@@ -51,12 +58,14 @@ HaltZ80:di 											; stop everything.
 		include "support/screen48k.asm"				; screen "drivers"
 		include "support/screen_layer2.asm"
 		include "support/screen_lores.asm"
+		include "support/utilities.asm"				; utility functions
 
-		include "compiler/constant.asm"
-		include "compiler/dictionary.asm"
-		include "compiler/compiler.asm"
-
-		include "temp/__words.asm" 					; core words
+		include "compiler/dictionary.asm"			; dictionary add/update routines.
+		include "compiler/buffer.asm"				; buffer routines.
+		include "compiler/constant.asm" 			; ASCII -> Int conversion
+		include "compiler/compiler.asm"				; actual compiler code.
+				
+		include "temp/__words.asm" 					; and the actual words
 
 AlternateFont:										; nicer font
 		include "font.inc" 							; can be $3D00 here to save memory

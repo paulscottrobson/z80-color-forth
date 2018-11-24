@@ -3,7 +3,7 @@
 ;
 ;		Name : 		constant.asm
 ;		Author :	Paul Robson (paul@robsons.org.uk)
-;		Date : 		22nd November 2018
+;		Date : 		20th November 2018
 ;		Purpose :	ASCII -> Integer conversion.
 ;
 ; ***************************************************************************************
@@ -12,7 +12,7 @@
 ; ***********************************************************************************************
 ;
 ;			Convert ASCIIZ string at BC to constant in HL. DE 0, Carry Clear if true
-;							Uses Colorforth's backend - format.
+;									Uses Colorforth's backend - format.
 ;
 ; ***********************************************************************************************
 
@@ -21,6 +21,7 @@ CONSTConvert:
 
 	ld 		d,b 									; string in DE.
 	ld 		e,c
+	
 	ld 		hl,$0000								; result in HL.
 	inc 	de 										; skip over the tag
 	ld 		c,0										; C is the negate flag
