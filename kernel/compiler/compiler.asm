@@ -10,6 +10,8 @@
 ; ***************************************************************************************
 
 CompilerTest:				; bodge ; part of CLI loader eventually
+		ld 		de,-1
+		push 	de
 
 		ld 		de,$5AC2 	; set up a fake stack :)
 		push 	de
@@ -31,10 +33,15 @@ w1: 	jr 		w1
 ; ***************************************************************************************
 
 COMCompileBuffer:
-		db 		$DD,$01
 		pop 	hl 									; return address, back to a data stack
 		ld 		(__COMCBOut+1),hl 					; save for leaving.
 		push 	de 									; make the stack uncached.
+
+		ld 		hl,COMReentrancy 					; reentrancy ???
+		bit 	7,(hl) 								; if it's already -ve, then we're in a second time
+__COMFailReentrancy:
+		jr 		nz,__COMFailReentrancy
+		dec 	(hl)
 
 		call 	BUFFindBuffer 						; A:BC is the buffer page/address
 		call 	BUFLoadBuffer 						; load buffer into edit buffer.
@@ -54,15 +61,21 @@ __COMCBTag:
 		cp 		$FF 								; reached the end ?
 		jr 		z,__COMCBExit
 
+;		db 		$DD,$01
+
 		ld 		a,(bc)
 		cp 		$82 								; red (defining word)
 		call 	z,COMDefinition_Red
+		ld 		a,(bc)
 		cp 		$83 								; magenta (variable word)
 		call 	z,COMDefinition_Magenta	
+		ld 		a,(bc)
 		cp 		$84 								; green (compile) word
 		call 	z,COMCompileWord_Green
+		ld 		a,(bc)
 		cp 		$85 								; cyan (compile) word
 		call 	z,COMCompileWord_Cyan
+		ld 		a,(bc)
 		cp 		$86 								; yellow (execute) word
 		call 	z,COMExecuteWord_Yellow
 __COMCBNext: 										; go to the next tag/end (bit 7 set)
@@ -79,6 +92,8 @@ __COMCBError: 										; error, come here.
 		jp 		ErrorHandler
 
 __COMCBExit:
+		ld 		hl,(COMReentrancy)					; bump the reentrancy count
+		inc 	(hl)
 		ld 		sp,ix
 		pop 	de 									; make the stack uncached again.
 __COMCBOut:
@@ -102,7 +117,24 @@ COMDefinition_Red:
 ; ***************************************************************************************
 
 COMDefinition_Magenta:
+		ld 		a,$00 								; put it in the WORD dictionary.
+		call 	DICTAddWord 				
+		ld 		a,$CD 								; compile call to the magenta handler.
+		call 	FARCompileByte
+		ld 		hl,COMVariableSupport 			
+		call 	FARCompileWord
+		ld 		hl,$0000 							; and the variable space.
+		call 	FARCompileWord
 		ret
+
+COMVariableSupport:
+		pop 	bc 									; the variable address into BC
+		pop 	hl  								; the return address after calling.
+		push 	de 									; push TOS cached onto stack
+		ld 		d,b 								; variable address is new TOS
+		ld 		e,c 	
+		jp 		(hl) 								; and go to the caller.
+
 
 ; ***************************************************************************************
 ;
@@ -112,7 +144,18 @@ COMDefinition_Magenta:
 ; ***************************************************************************************
 
 COMCompileWord_Green:
-		ret
+		ld 		a,$80 								; search in MACRO
+		call 	DICTFindWord
+		jp 		nc,COMW_CallRoutineAtEHL 			; if found execute.
+
+		ld 		a,$00 								; search in FORTH
+		call 	DICTFindWord
+		jp 		nc,COMW_CompileCalltoEHL 			; compile code to call it
+
+		call 	CONSTConvert						; is it a constant
+		jp 		nc,COMW_CompileConstantHL 			; compile code to compile it.
+
+		jp 		__COMCBError 						; report an error
 
 ; ***************************************************************************************
 ;
@@ -122,7 +165,11 @@ COMCompileWord_Green:
 ; ***************************************************************************************
 
 COMCompileWord_Cyan:
-		ret
+		ld 		a,$80 								; search in MACRO
+		call 	DICTFindWord
+		jp 		nc,COMW_CompileCalltoEHL 			; compile code to call it
+
+		jp 		__COMCBError 						; report an error
 
 ; ***************************************************************************************
 ;
@@ -132,6 +179,17 @@ COMCompileWord_Cyan:
 ; ***************************************************************************************
 
 COMExecuteWord_Yellow:
+		ld 		a,$00 								; search in FORTH
+		call 	DICTFindWord
+		jp 		nc,COMW_CallRoutineAtEHL 			; if found execute.
+
+		call 	CONSTConvert						; is it a constant
+		jp 		c,__COMCBError 						; no, report error
+
+		dec 	ix 									; put it on the 'stack'
+		dec 	ix 									; that is kept in IX.
+		ld 		(ix+0),l
+		ld 		(ix+1),h
 		ret
 
 ; ***************************************************************************************
@@ -140,7 +198,7 @@ COMExecuteWord_Yellow:
 ;
 ; ***************************************************************************************
 
-COMW_CompileCalltoAHL:
+COMW_CompileCalltoEHL:
 		;
 		; TODO: if call to >$C000 and here.page != E then paged call
 		;
@@ -165,14 +223,16 @@ COMW_CompileConstantHL:
 
 ; ***************************************************************************************
 ;
-;				Call the routine at A:HL using IX as the (uncached) stack.
+;				Call the routine at E:HL using IX as the (uncached) stack.
 ;							This one belongs to the Compiler Code
 ;
 ; ***************************************************************************************
 
-COMW_CallRoutineAtAHL:
+COMW_CallRoutineAtEHL:
+		push 	bc
 		ld 		(COMStackTemp),sp 					; save the stack pointer
-		call 	PAGESwitch 							; switch to page A
+		ld 		a,e
+		call 	PAGESwitch 							; switch to page E
 
 		ld 		sp,ix 								; now back with the data stack
 		pop 	de 									; make it cached (e.g. DE = TOS)
@@ -185,17 +245,19 @@ COMW_CallRoutineAtAHL:
 
 		call 	PAGERestore 						; restore the page
 		ld 		sp,(COMStackTemp) 					; and the stack pointer.
+		pop 	bc
 		ret
 
 ; ***************************************************************************************
 ;
-;				Call the routine at A:HL with cached stack state. Used by CLI
+;				Call the routine at E:HL with cached stack state. Used by CLI
 ;
 ; ***************************************************************************************
 
 COMW_CallRoutineAtAHL_ConsoleVersion:
 		pop 	bc 									; return address. makes stack right
 		ld 		(__COMW_CVOut+1),bc
+		ld 		a,e
 		call 	PAGESwitch 							; switch to that page.
 		call 	__COMW_CallHL 						; call the routine to call (HL)
 		call 	PAGERestore 						; fix the page back up

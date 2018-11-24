@@ -1,6 +1,10 @@
 // comment
 
-32766 2 hex! halt @
+::newvar [newvar] newvar
+
+
+[12345] [13] [hex!] [newvar] [12] [12] [*] [.stack] [halt]
+
 
 
 

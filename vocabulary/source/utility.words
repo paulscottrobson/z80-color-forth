@@ -60,3 +60,10 @@
 		ld 		a,$00
 		ld 		(DICTForthMacroFlag),a
 ; @endm
+
+; ***************************************************************************************
+
+; @word[ret] .stack
+		jp 		DUMPShowStack
+; @endm
+

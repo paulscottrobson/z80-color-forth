@@ -60,6 +60,7 @@ HaltZ80:di
 		include "support/screen_layer2.asm"
 		include "support/screen_lores.asm"
 		include "support/utilities.asm"				; utility functions
+		include "support/dumpstack.asm"				; stack display.
 
 		include "compiler/dictionary.asm"			; dictionary add/update routines.
 		include "compiler/buffer.asm"				; buffer routines.

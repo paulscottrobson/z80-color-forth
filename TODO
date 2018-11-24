@@ -1,9 +1,22 @@
 TODO
 
-- Write and test compiler. (Green, Yellow Red, Magenta).   Not re-entrant.
-- re-entrancy block for the compiler. 
-- Stack Dump.
+- Write and test compiler. (Red) multiple exit points using ;s (; comes later as it closes then)
+- Test vocabulary
 - imagelib needs to get info from page table
-- command line design.
+- Make symbol shift the escape ?
+- command line design/implementation.
 - Paging calls
-- to be reset on error : stack, compiler re-entrancy block, page stack, paging call mechanism
+- to be reset on error : 
+		stack
+			  on error or warm start :
+		compiler re-entrancy block, page stack, paging call mechanism, state of call/return.
+
+!! && @@
+
+will compile CALL xxxx
+needs to be:
+	push de ; ld de,(xxxx+3)
+	ld 	(xxxx+3),de ; pop de
+	push de ; ld de,xxxx+3
+
+save last call :)

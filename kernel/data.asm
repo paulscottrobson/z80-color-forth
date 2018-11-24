@@ -46,8 +46,12 @@ PAGEStackPointer: 									; stack used for switching pages
 		dw 		0
 PAGEStackBase:
 		ds 		16
+
 COMStackTemp: 										; temporary stack store when
 		dw 		0 									; executing yellow words
+
+COMReentrancy: 										; re-entrancy count for Compiler.
+		db 		0
 ;
 ;		Page usage table. Note this needs to match up with the definitions in kernel.asm
 ;

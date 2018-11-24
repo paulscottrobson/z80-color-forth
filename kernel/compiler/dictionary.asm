@@ -24,6 +24,8 @@ DICTAddWord:
 		push 	ix
 
 		push 	bc 									; save word address.
+		ld 		h,b 								; put in HL
+		ld		l,c
 		ld 		c,a 								; put the dictionary marker in C
 		ld 		b,-1								; put length of string in B
 __DICTAddGetLength:

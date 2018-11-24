@@ -30,3 +30,11 @@
 		pop 	de 								; fix up stack
 ; @end
 
+; ***************************************************************************************
+
+; @word[ix] hex!
+		ex 		de,hl
+		pop 	de
+		call 	GFXWriteHexWord
+		pop 	de
+; @endm
