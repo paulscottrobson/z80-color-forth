@@ -18,7 +18,7 @@ DUMPShowStack:
 		ld		b,e 								; width in B and C
 __DSSClear: 										; clear the bottom line.
 		dec 	hl 									; backwards
-		ld 		de,$0220 				
+		ld 		de,$0220
 		call 	GFXWriteCharacter
 		djnz 	__DSSClear
 

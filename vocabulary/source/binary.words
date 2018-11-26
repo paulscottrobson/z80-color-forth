@@ -3,42 +3,11 @@
 ;
 ;		Name : 		binary.words
 ;		Author :	Paul Robson (paul@robsons.org.uk)
-;		Date : 		15th November 2018
+;		Date : 		26th November 2018
 ;		Purpose :	Binary operators
 ;
 ; ***************************************************************************************
 ; ***************************************************************************************
-
-; @forth[ix] 		*
-		pop 	hl
-		call 	MULTMultiply16 							; HL := HL * DE
-		ex 		de,hl
-; @end	
-
-; *********************************************************************************
-
-; @forth[ix] 		/
-		pop 	hl
-		call 	DIVDivideMod16							; DE := DE/HL HL = DE%HL
-; @end	
-
-; *********************************************************************************
-
-; @forth[ix] 		mod
-		pop 	hl
-		call 	DIVDivideMod16							; DE := DE/HL HL = DE%HL
-		ex 		de,hl
-; @end	
-
-; *********************************************************************************
-
-; @forth[ix] 		/mod
-		pop 	hl
-		call 	DIVDivideMod16							; DE := DE/HL HL = DE%HL
-		push 	hl
-; @end	
-
-; *********************************************************************************
 
 ; @macro[ix]	+
 		pop 	hl
@@ -46,9 +15,10 @@
 		ex 		de,hl
 ; @end
 
+
 ; *********************************************************************************
 
-; @forth[hl]		and
+; @forth[hl]	and
 		pop 	bc
 		ld 		a,e
 		and 	c

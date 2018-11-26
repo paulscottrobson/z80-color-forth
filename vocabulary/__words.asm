@@ -6,78 +6,11 @@
 ;
 ;  Name :   binary.words
 ;  Author : Paul Robson (paul@robsons.org.uk)
-;  Date :   15th November 2018
+;  Date :   26th November 2018
 ;  Purpose : Binary operators
 ;
 ; ***************************************************************************************
 ; ***************************************************************************************
-
-
-; @forth[ix]   *
-
-cforth_2a_forth:
-    pop ix
-cforth_2a_start:
-  pop  hl
-  call  MULTMultiply16        ; HL := HL * DE
-  ex   de,hl
-
-; @end
-
-cforth_2a_end:
-    jp (ix)
-
-; *********************************************************************************
-
-
-; @forth[ix]   /
-
-cforth_2f_forth:
-    pop ix
-cforth_2f_start:
-  pop  hl
-  call  DIVDivideMod16       ; DE := DE/HL HL = DE%HL
-
-; @end
-
-cforth_2f_end:
-    jp (ix)
-
-; *********************************************************************************
-
-
-; @forth[ix]   mod
-
-cforth_6d_6f_64_forth:
-    pop ix
-cforth_6d_6f_64_start:
-  pop  hl
-  call  DIVDivideMod16       ; DE := DE/HL HL = DE%HL
-  ex   de,hl
-
-; @end
-
-cforth_6d_6f_64_end:
-    jp (ix)
-
-; *********************************************************************************
-
-
-; @forth[ix]   /mod
-
-cforth_2f_6d_6f_64_forth:
-    pop ix
-cforth_2f_6d_6f_64_start:
-  pop  hl
-  call  DIVDivideMod16       ; DE := DE/HL HL = DE%HL
-  push  hl
-
-; @end
-
-cforth_2f_6d_6f_64_end:
-    jp (ix)
-
-; *********************************************************************************
 
 
 ; @macro[ix] +
@@ -98,10 +31,11 @@ cforth_2b_macro:
     ld hl,cforth_2b_start
     jp MacroExpand
 
+
 ; *********************************************************************************
 
 
-; @forth[hl]  and
+; @forth[hl] and
 
 cforth_61_6e_64_forth:
     pop hl
@@ -166,7 +100,7 @@ cforth_2b_6f_72_end:
 ;
 ;  Name :   compare.words
 ;  Author : Paul Robson (paul@robsons.org.uk)
-;  Date :   16th November 2018
+;  Date :   26th November 2018
 ;  Purpose : Comparison words, min and max.
 ;
 ; ***************************************************************************************
@@ -213,7 +147,7 @@ cforth_6c_65_73_73_end:
 ;
 ;  Name :   graphic.words
 ;  Author : Paul Robson (paul@robsons.org.uk)
-;  Date :   15th November 2018
+;  Date :   26th November 2018
 ;  Purpose : Graphic System words
 ;
 ; ***************************************************************************************
@@ -288,7 +222,7 @@ cforth_68_65_78_21_end:
 ;
 ;  Name :   memory.words
 ;  Author : Paul Robson (paul@robsons.org.uk)
-;  Date :   15th November 2018
+;  Date :   26th November 2018
 ;  Purpose : Memory and Hardware access
 ;
 ; ***************************************************************************************
@@ -546,12 +480,13 @@ cforth_70_21_macro:
     ld b,cforth_70_21_end-cforth_70_21_start
     ld hl,cforth_70_21_start
     jp MacroExpand
+
 ; ***************************************************************************************
 ; ***************************************************************************************
 ;
 ;  Name :   stack.words
 ;  Author : Paul Robson (paul@robsons.org.uk)
-;  Date :   16th November 2018
+;  Date :   26th November 2018
 ;  Purpose : Stack operators
 ;
 ; ***************************************************************************************
@@ -659,7 +594,7 @@ cforth_73_77_61_70_macro:
 ;
 ;  Name :   unary.words
 ;  Author : Paul Robson (paul@robsons.org.uk)
-;  Date :   22nd November 2018
+;  Date :   26th November 2018
 ;  Purpose : Unary operators
 ;
 ; ***************************************************************************************
@@ -899,7 +834,7 @@ cforth_30_3c_end:
 ;
 ;  Name :   utility.words
 ;  Author : Paul Robson (paul@robsons.org.uk)
-;  Date :   21st November 2018
+;  Date :   26th November 2018
 ;  Purpose : Miscellaneous words.
 ;
 ; ***************************************************************************************
@@ -929,31 +864,12 @@ cforth_69_6e_6b_65_79_end:
 cforth_68_61_6c_74_forth:
     pop hl
 cforth_68_61_6c_74_start:
-
   jp   HaltZ80
 
 ; @end
 
 cforth_68_61_6c_74_end:
     jp (hl)
-
-; ***************************************************************************************
-
-
-; @macro[ret] break
-
-cforth_62_72_65_61_6b_forth:
-cforth_62_72_65_61_6b_start:
-  db   $DD,$01
-
-; @endm
-
-cforth_62_72_65_61_6b_end:
-    ret
-cforth_62_72_65_61_6b_macro:
-    ld b,cforth_62_72_65_61_6b_end-cforth_62_72_65_61_6b_start
-    ld hl,cforth_62_72_65_61_6b_start
-    jp MacroExpand
 
 ; ***************************************************************************************
 
@@ -990,48 +906,15 @@ cforth_32_2c_end:
     jp (hl)
 
 ; ***************************************************************************************
-;    FORTH and MACRO are special cases. See makedictionary.py
-; ***************************************************************************************
 
 
-; @word[ret] forth
+; @word[ret] dump.stack
 
-cforth_66_6f_72_74_68_forth:
-cforth_66_6f_72_74_68_start:
-  ld   a,$00
-  ld   (DICTForthMacroFlag),a
-
-; @endm
-
-cforth_66_6f_72_74_68_end:
-    ret
-
-; ***************************************************************************************
-
-
-; @word[ret] macro
-
-cforth_6d_61_63_72_6f_forth:
-cforth_6d_61_63_72_6f_start:
-  ld   a,$00
-  ld   (DICTForthMacroFlag),a
-
-; @endm
-
-cforth_6d_61_63_72_6f_end:
-    ret
-
-; ***************************************************************************************
-
-
-; @word[ret] .stack
-
-cforth_2e_73_74_61_63_6b_forth:
-cforth_2e_73_74_61_63_6b_start:
+cforth_64_75_6d_70_2e_73_74_61_63_6b_forth:
+cforth_64_75_6d_70_2e_73_74_61_63_6b_start:
   jp   DUMPShowStack
 
 ; @endm
 
-cforth_2e_73_74_61_63_6b_end:
+cforth_64_75_6d_70_2e_73_74_61_63_6b_end:
     ret
-

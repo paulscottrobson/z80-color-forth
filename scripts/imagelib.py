@@ -16,7 +16,6 @@ class ColorForthImage(object):
 		self.image = [x for x in h.read(-1)]
 		h.close()
 		self.sysInfo = self.read(0,0x8004)+self.read(0,0x8005)*256
-		self.pageTable = self.read(0,self.sysInfo+8)+self.read(0,self.sysInfo+9)*256
 		self.currentPage = 	self.read(0,self.sysInfo+2)
 		self.currentAddress = self.read(0,self.sysInfo+0)+self.read(0,self.sysInfo+1)*256
 	#
@@ -29,11 +28,6 @@ class ColorForthImage(object):
 	#
 	def dictionaryPage(self):
 		return 0x20
-	#
-	#		Return editor pages information
-	#
-	def sourcePageInfo(self):
-		return [0x22,64]
 	#
 	#		Return current page and address for next free code.
 	#
@@ -63,10 +57,6 @@ class ColorForthImage(object):
 		self.expandImage(page,address)
 		assert data >= 0 and data < 256
 		self.image[self.address(page,address)] = data
-		if page >= 0x20:
-			pageTableEntry = self.pageTable + ((page - 0x20) >> 1)
-			if self.read(0,pageTableEntry) == 0:
-				self.write(0,pageTableEntry,dataType)
 	#
 	#		Expand physical size of image to include given address
 	#
@@ -109,19 +99,6 @@ class ColorForthImage(object):
 		while self.read(self.dictionaryPage(),p) != 0:
 			p = p + self.read(self.dictionaryPage(),p)
 		return p
-	#
-	#		Allocate page of memory to a specific purpose.
-	#
-	def findFreePage(self):
-		p = self.getSysInfo() + 16
-		pageUsageTable = self.read(0,p)+self.read(0,p+1)*256
-		page = 0x20
-		while self.read(0,pageUsageTable) != 0:
-			page += 0x2
-			pageUsageTable += 1
-			assert self.read(0,pageUsageTable) != 255,"No space left in page usage table."
-		self.write(0,pageUsageTable,2)
-		return page	
 	#
 	#		Write the image file out.
 	#
