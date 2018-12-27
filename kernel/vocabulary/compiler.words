@@ -1,8 +1,0 @@
-Words that are the compilers responsibility
-
-;
--if if then
-begin end until -until
-forth macro
-for next i
-h here ?
