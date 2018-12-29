@@ -1,5 +1,4 @@
-@echo off
-python ..\scripts\makecore.py core graphics.layer2
-..\bin\snasm __core.asm boot.img
 
+python ../scripts/makekernel.py
+zasm -buw kernel.asm -l kernel.lst -o boot.img
 

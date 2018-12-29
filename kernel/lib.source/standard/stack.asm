@@ -46,23 +46,41 @@
 
 @word.ix 	push
 	ex 		de,hl
-	ld 		hl,(TempStackPointer)
+	ld 		hl,(TempStackOffset)
+	ld 		bc,TempStack
+	add 	hl,bc
 	ld 		(hl),e
 	inc 	hl
 	ld 		(hl),d
-	inc 	hl
-	ld 		(TempStackPointer),hl
+
+	ld 		hl,TempStackOffset
+	inc 	(hl)
+	inc 	(hl)
+
+	ld 		a,(hl)
+	and 	$1F
+	ld 		(hl),a
+
 	pop 	hl
 @end
 
 @word.ix 	pop
 	push 	hl
-	ld 		hl,(TempStackPointer)
-	dec 	hl
-	ld 		d,(hl)
-	dec 	hl
+
+	ld 		hl,TempStackOffset
+	dec 	(hl)
+	dec 	(hl)
+	ld 		a,(hl)
+	and 	$1F
+	ld 		(hl),a
+
+	ld 		hl,(TempStackOffset)
+	ld 		de,TempStack
+	add 	hl,de
+
 	ld 		e,(hl)
-	ld 		(TempStackPointer),hl
+	inc 	hl
+	ld 		d,(hl)
 	ex 		de,hl
 @end	
 

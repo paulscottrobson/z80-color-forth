@@ -40,13 +40,20 @@ StartAddressPage: 									; +20 	Start Page
 
 DisplayInformation:
 
-__DIScreenWidth: 									; +0 	screen width
+SIScreenWidth: 									; +0 	screen width
 		db 		0,0,0,0
-__DIScreenHeight:									; +4 	screen height
+SIScreenHeight:									; +4 	screen height
 		db 		0,0,0,0
-__DIFontBase:										; font in use
-		dw 		AlternateFont
+SIScreenSize:									; +8 	screen size
+		dw 		0,0
+SIFontBase:										; +12 	font in use
+		dw 		AlternateFont,0
+SIScreenDriver:									; +16 	screen driver pointer
+		dw 		0 										
 
+TempStack:										; 16 word element stack
+		ds 		32 								
+TempStackOffset:								; current offset.
+		dw 		0 											
+		
 FreeMemory:		
-		org 	$C000
-		db 		0 									; start of dictionary, which is empty.

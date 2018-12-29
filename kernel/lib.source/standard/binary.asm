@@ -99,5 +99,5 @@ __Less_TrueIfCarry:
 	sbc 	a,a 									; A = $FF if HL < DE $00 otherwise
 	ld 		l,a 									; copy to HL
 	ld 		h,a
-@endm
+@end
 
