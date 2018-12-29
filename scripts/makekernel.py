@@ -84,7 +84,7 @@ for key in [x for x in dictionary.keys()]:
 	hOut.write("    db  FirstCodePage\n")
 	hOut.write("    dw  {0}\n".format(dictionary[key]["label"]))
 	size = len(key) if dictionary[key]["dict"] == "forth" else 0x80+len(key)
-	hOut.write("    db  {0},\"{1}\",0\n".format(size,key))
+	hOut.write("    db  {0},\"{1}\"\n".format(size,key))
 hOut.write("    db  0\n")
 hOut.close()
 		

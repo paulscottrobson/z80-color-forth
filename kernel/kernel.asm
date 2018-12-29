@@ -21,7 +21,8 @@ FirstCodePage = $22 								; $22 = code page.
 Boot:	ld 		sp,StackTop							; reset Z80 Stack
 		di											; disable interrupts
 		db 		$ED,$91,7,2							; set turbo port (7) to 2 (14Mhz speed)
-	
+		ld 		l,0 								; display mode 0.
+		call 	GFXMode
 		ld 		a,(StartAddressPage)				; Switch to start page
 		db 		$ED,$92,$56
 		inc 	a
@@ -41,4 +42,5 @@ AlternateFont:										; nicer font
 		include "font.inc" 							; can be $3D00 here to save memory
 		include "temp/__source.asm"
 		include "data.asm"
-
+		org 	$C000
+		include "temp/__dictionary.asm"
