@@ -32,6 +32,7 @@ src = "~".join(src)+"~"
 src = src.split("@@")
 index = 0
 hOut = open(".."+os.sep+"kernel"+os.sep+"temp"+os.sep+"__words.asm","w")
+dictionary = []
 for defn in [x for x in src if x != ""]:
 	m = re.match("^(\w+)\.(\w+)\s+(.*?)\~(.*)\~\@end\~?$",defn)
 	assert m is not None,defn
@@ -47,17 +48,28 @@ for defn in [x for x in src if x != ""]:
 		scramble = "_".join(["{0:02x}".format(ord(x)) for x in name])
 		if m.group(1) != "macroonly":
 			hOut.write("\n_define_forth_"+scramble+":\n")
+			dictionary.append([True,"_define_forth_"+scramble,name])
 			if wrapper != "ret":
 				hOut.write("\tpop "+wrapper+"\n")
 			hOut.write(src+"\n")
 			hOut.write("\tjp ("+wrapper+")\n" if wrapper != "ret" else "\tret\n")			
 		if m.group(1) != "word":
 			hOut.write("\n_define_macro_"+scramble+":\n")
+			dictionary.append([False,"_define_macro_"+scramble,name])
 			hOut.write("\tld b,_end_{0}-_start_{0}\n".format(index))
-			hOut.write("\tcall MacroExpansion\n")
+			hOut.write("\tcall expandMacro\n")
 			hOut.write("_start_"+str(index)+":\n")
 			hOut.write(src+"\n")
 			hOut.write("_end_"+str(index)+":\n")
 			index += 1
 hOut.close()			
 
+hOut = open(".."+os.sep+"kernel"+os.sep+"temp"+os.sep+"__dictionary.asm","w")
+for e in dictionary:
+	hOut.write("\tdb\t{0}\n".format(len(e[2])+5))
+	hOut.write("\tdb\t$20\n")
+	hOut.write("\tdw\t{0}\n".format(e[1]))
+	hOut.write("\tdb\t{0}\n".format(len(e[2])+(0 if e[0] else 128)))
+	hOut.write("\tdb\t\"{0}\"\n\n".format(e[2]))
+hOut.write("\tdb\t0\n\n")
+hOut.close()			
