@@ -1,4 +1,4 @@
-﻿#CSpect V2.1.4 ZXSpectrum emulator by Mike Dailly
+﻿#CSpect V2.2.0 ZXSpectrum emulator by Mike Dailly
 (c)1998-2018 All rights reserved
 
 Be aware...emulator is far from well tested, might crash for any reason!
@@ -38,6 +38,12 @@ Command Line Options
 
 Whats new
 ======================================================================================
+V2.2.0
+------
+Fixed reg 0x43 bit 7- disable palette auto increment.
+Fixed NextReg access for sprites. Was using the wrong index.
+
+
 V2.1.4
 ------
 Added logging debug command (see below)
@@ -45,16 +51,12 @@ Added Layer 2 pixel priority mode - top bit of second colour palette byte (the s
 Added Next OS streaming API ( see below  )
 Added DMA reverse mode (R0 BASE, bit 2)
 Added BSLA DE,B  (ED 28)  shift DE left by B places - uses bits 4..0 of B only
-
 Added BSRA DE,B  (ED 28)  arithmetic shift right DE by B places - uses bits 4..0 of B only - bit 15 is replicated to keep sign
-
 Added BSRL DE,B  (ED 2A)  logical shift right DE by B places - uses bits 4..0 of B only
-
 Added BSRF DE,B  (ED 2B)  shift right DE by B places, filling from left with 1s - uses bits 4..0 of B only
-
 Added BRLC DE,B  (ED 2C)  rotate DE left by B places - uses bits 3..0 of B only (to rotate right, use B=16-places)
-Added new sprite control byte
 Added JP (C)     (ED 98)  JP  ( IN(C)*64 + PC&$c000 )
+Added new sprite control byte
 Added sprite expand on X (16,32,64 or 128)
 Added sprite expand on Y (16,32,64 or 128)
 Added 16 colour shape mode

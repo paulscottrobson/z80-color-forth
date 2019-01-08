@@ -1,0 +1,91 @@
+; ***************************************************************************************************************
+; ***************************************************************************************************************
+;
+;		Name : 		binary.core
+;		Author :	Paul Robson (paul@robsons.org.uk)
+;		Date : 		8th December 2019
+;		Purpose :	Z80 Colour Forth : Binary Words
+;
+; ***************************************************************************************************************
+; ***************************************************************************************************************
+
+@@macro.ix	+
+	pop 	hl
+	add 	hl,de
+	ex 		de,hl
+@end
+
+; ***************************************************************************************************************
+
+@@word.ix	<
+	pop 	hl
+	ld 		a,h 								 	; check if signs different.
+	xor 	d
+	add 	a,a 									; CS if different
+	jr 		nc,__less_samesign
+	ld 		a,d 									; different. set CS to sign of B
+	add 	a,a 									; if set (negative) B must be < A as A is +ve
+	jr 		__less_returnc
+__less_samesign:
+	ex 		de,hl 									; old TOS in HL, 2nd on stack in DE
+	sbc 	hl,de 									; calculate top - 2nd , hence CS if < (Carry clear by add a,a)
+__less_returnc:
+	ld 		a,0 									; A 0
+	sbc 	a,0 									; A $FF if CS.
+	ld 		e,a 									; put in HL
+	ld 		d,a
+@end
+
+; ***************************************************************************************************************
+
+@@word.ix	=
+	pop 	hl
+	ld 		a,h 									; H = H ^ D
+	xor 	d
+	ld 		h,a
+	ld 		a,l 									; A = (L ^ E) | (H ^ D)
+	xor 	e
+	or 		h 										; if A == 0 they are the same.
+	ld 		de,$0000 								; return 0 if different
+	jr 		nz,__equal_different
+	dec 	de 										; return -1
+__equal_different:
+@end
+
+; ***************************************************************************************************************
+
+@@word.ix	and
+	pop 	hl
+	ld 		a,e
+	and 	l
+	ld 		e,a
+	ld 		a,d
+	and 	h
+	ld 		d,a
+@end
+
+; ***************************************************************************************************************
+
+@@word.ix	or::xor
+	pop 	hl
+	ld 		a,e
+	xor 	l
+	ld 		e,a
+	ld 		a,d
+	xor 	h
+	ld 		d,a
+@end
+
+; ***************************************************************************************************************
+
+@@word.ix	+or::lor
+	pop 	hl
+	ld 		a,e
+	or 		l
+	ld 		e,a
+	ld 		a,d
+	or 		h
+	ld 		d,a
+@end
+
+; ***************************************************************************************************************
