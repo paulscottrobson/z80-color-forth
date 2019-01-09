@@ -126,18 +126,19 @@ class MemoryImage(object):
 	#
 	#		Extract the dictionary
 	#
-	def getDictionary(self):
+	def getDictionary(self,getForth):
 		dictionary = {}
 		dp = self.dictionaryPage()
 		p = 0xC000
+		mask = 0x00 if getForth else 0x80
 		while self.read(dp,p) != 0:
-			name = ""
-			for i in range(0,self.read(dp,p+4) & 0x3F):
-				name += chr(self.read(dp,p+5+i))				
-			entry = { "name":name,"page":self.read(dp,p+1),"address":self.read(dp,p+2)+256*self.read(dp,p+3)}
-			entry["dictionary"] = "forth" if (self.read(dp,p+4) & 0x80) == 0 else "macro" 
+			if (self.read(dp,p+4) & 0x80) == mask:
+				name = ""
+				for i in range(0,self.read(dp,p+4) & 0x3F):
+					name += chr(self.read(dp,p+5+i))				
+				entry = { "name":name,"page":self.read(dp,p+1),"address":self.read(dp,p+2)+256*self.read(dp,p+3)}
+				dictionary[name] = entry
 			p = p + self.read(dp,p)
-			dictionary[name] = entry
 		return dictionary		
 	#
 	#		Set boot

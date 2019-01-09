@@ -4,6 +4,18 @@
 	db	16
 	db	"sys.expand.macro"
 
+	db	10
+	db	$20
+	dw	_define_macro_62_72_65_61_6b
+	db	133
+	db	"break"
+
+	db	9
+	db	$20
+	dw	_define_forth_68_61_6c_74
+	db	4
+	db	"halt"
+
 	db	7
 	db	$20
 	dw	_define_forth_31_2c

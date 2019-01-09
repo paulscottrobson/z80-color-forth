@@ -1,10 +1,10 @@
 # ***************************************************************************************
 # ***************************************************************************************
 #
-#		Name : 		m7c.py
+#		Name : 		cfc.py
 #		Author :	Paul Robson (paul@robsons.org.uk)
 #		Date :		6th January 2019
-#		Purpose :	Python M7 compiler.
+#		Purpose :	Python Color Forth compiler.
 #
 # ***************************************************************************************
 # ***************************************************************************************
@@ -33,14 +33,10 @@ class Compiler(object):
 	#
 	def __init__(self,source = "boot.img"):
 		self.binary = MemoryImage(source)	
-		self.dictionary = self.binary.getDictionary()						# load current dictionary
-																			# standard routines 
-		self.standardHeader = self.dictionary["sys.stdheaderroutine"]["address"]
-		self.macroHeader = self.dictionary["sys.stdmacroroutine"]["address"]
-		self.macroExecHeader = self.dictionary["sys.stdexecmacroroutine"]["address"]
-		self.variableHandler = self.dictionary["sys.variableroutine"]["address"]
-
-		#self.binary.echo = False
+		self.forthDictionary = self.binary.getDictionary(True)			# load current dictionaries
+		self.macroDictionary = self.binary.getDictionary(False)
+		self.useForthDictionary = True
+		self.binary.echo = True
 	#
 	#		Compile a file
 	#
@@ -59,6 +55,11 @@ class Compiler(object):
 	#		Compile a string array
 	#
 	def compileArray(self,source):
+		self.ifBranch = None
+		self.beginLoop = None
+		self.forLoop = None
+		self.defOpen = False
+
 		for ln in range(0,len(source)):										# go through all lines
 			CompilerException.LINENUMBER = ln + 1							# update current line
 			line = source[ln].replace("\t"," ").strip()						# remove TAB
@@ -123,78 +124,103 @@ class Compiler(object):
 				self.binary.write(p,self.binary.getCodeAddress()-3,0x2A)	# ld hl,(xxxx)
 			return
 		#
-		# 		Immediate words :<name> variable and compiles>
+		# 		Defining words :<name> variable, forth and macro
 		#
 		if cmd.startswith(":") and cmd != ":":								
+			if self.defOpen:
+				raise CompilerException("Unclosed definition")																			
 																			# build record
 			newFunc = { "name":cmd[1:],"page":self.binary.getCodePage(),"address":self.binary.getCodeAddress() }			
-			if newFunc["name"] in self.dictionary:							# check duplication
+			if newFunc["name"] in self.forthDictionary or newFunc["name"] in self.macroDictionary:						
 				raise CompilerException("Name duplicated {0}".format(newFunc["name"]))
-			self.dictionary[newFunc["name"]] = newFunc						# add to compiler dict
+
+			if self.useForthDictionary:
+				self.forthDictionary[newFunc["name"]] = newFunc				
+			else:
+				self.macroDictionary[newFunc["name"]] = newFunc				
+
 			if not newFunc["name"].startswith("_"): 						# add to binary if not _
-				self.binary.addDictionary(newFunc["name"],newFunc["page"],newFunc["address"])
+				self.binary.addDictionary(newFunc["name"],newFunc["page"],newFunc["address"],self.useForthDictionary)
+
 			if newFunc["name"] == "main":									# main word ?
-				self.binary.setBoot(newFunc["page"],newFunc["address"]+3)	# +3 for code not header
-			self.binary.cByte(0xCD)											# call
-			self.binary.cWord(self.standardHeader+3)						# +3 for code not header
-			return
-		#
-		if cmd == "variable":
-			vh = self.variableHandler + 3									# replacement
-			self.binary.write(self.binary.getCodePage(),self.binary.getCodeAddress()-2,vh & 255)
-			self.binary.write(self.binary.getCodePage(),self.binary.getCodeAddress()-1,vh >> 8)
-			self.binary.cWord(0)
-			return
-		#
-		if cmd == "compiles>":
-			self.binary.setCodeAddress(self.binary.getCodeAddress()-3)		# unpicks the header.
-			return
-		#
-		#		Words in dictionary. Identify what to do by examining the compiler call
-		#		if there isn't one, we can't compile it (without emulating a Z80 !)
-		#
-		if cmd in self.dictionary:
-			page = self.dictionary[cmd]["page"]								# get word position
-			address = self.dictionary[cmd]["address"]
-			if self.binary.read(page,address) != 0xCD:						# check CALL xxxx
-				raise CompilerException("Word {0} cannot be compiled.".format(cmd))
-																			# get the call to compile
-			compExec = self.binary.read(page,address+1)+self.binary.read(page,address+2)*256-3
+				self.binary.setBoot(newFunc["page"],newFunc["address"])	# +3 for code not header
 
-			if compExec == self.standardHeader:								# standard (callable routine)
-				self.binary.cByte(0xCD)
-				self.binary.cWord(address+3)
-																			# macro, copy code in.
-			elif compExec == self.macroHeader or compExec == self.macroExecHeader:
-				count = self.binary.read(page,address+3)					# bytes in macro
-				assert count < 8
-				for i in range(0,count):									# copy each byte
-					self.binary.cByte(self.binary.read(page,address+i+4))
-
-			elif compExec == self.variableHandler:							# variable word.
-				self.loadConstant(address+3)
-
-			else:															# some other wierd word.
-				raise CompilerException("Unknown compilation code for "+cmd)
+			self.defOpen = True 											# in a definition
+			self.defStart = self.binary.getCodeAddress()					# prefix here.
+			self.closeAddress = None
+			self.binary.cByte(0xE1)											# pop HL
+			self.binary.cByte(0x22)											# LD (xxxx),hl
+			self.binary.cWord(0x00)											# placeholder.
 			return
+		#
+		if cmd == ";":	
+			self.closeDefinition()											# close a definition.
+			return 
+		#
+		if cmd == "forth" or cmd == "macro":
+			self.useForthDictionary = (cmd == "forth")
+			return
+		#
+		#		Words in dictionary. 
+		#
+		if cmd in self.macroDictionary:
+			page = self.macroDictionary[cmd]["page"]						# get word position
+			address = self.macroDictionary[cmd]["address"]					# get word address
+			first = self.binary.read(page,address)							# check it's LD B,nn
+			if first != 0x06:
+				raise CompilerException("Can't compile macro words in Python compiler.")
+			count = self.binary.read(page,address+1)
+			assert count > 0 and count <= 6,"Bad macro expansion ?"
+			for i in range(0,count):										# copy it out.
+				self.binary.cByte(self.binary.read(page,address+5+i))
+			return
+
+		if cmd in self.forthDictionary:
+			page = self.forthDictionary[cmd]["page"]						# get word position
+			address = self.forthDictionary[cmd]["address"]					# get word address
+			self.binary.cByte(0xCD)
+			self.binary.cWord(address)
+			return
+		# 
 		raise CompilerException("Unknown word '{0}'".format(cmd))
+	#
+	#		Close a definition
+	#
+	def closeDefinition(self):
+		if self.closeAddress is None:										# first closing.
+			if not self.defOpen:											# not in one
+				raise CompilerException("Not in a definition")
+			self.closeAddress = self.binary.getCodeAddress()				# remember where it is
+			self.binary.cByte(0xC3)											# JP xxxx
+			self.binary.cWord(0)
+			tgt = self.closeAddress+1 										# where we overwrite
+			self.binary.write(self.binary.getCodePage(),self.defStart+2,tgt & 0xFF)
+			self.binary.write(self.binary.getCodePage(),self.defStart+3,tgt >> 8)
+			self.defOpen = False 											# def not open.
+		else:
+			self.binary.cByte(0xC3)											# jump to exit
+			self.binary.cWord(self.closeAddress)							# as already closed.
+		if self.ifBranch is not None:										# close THEN if open.
+			self.setBranch(self.ifBranch,self.binary.getCodeAddress())
+			self.ifBranch = None
+
 	#
 	#		Load a constant into A, A->B first
 	#	
 	def loadConstant(self,const):
-		self.binary.cByte(0xEB)												# ex de,hl
-		self.binary.cByte(0x21)												# ld hl,xxxx
+		self.binary.cByte(0xD5)												# push de
+		self.binary.cByte(0x11)												# ld de,xxxx
 		self.binary.cWord(const & 0xFFFF)
 	#
 	#		Compile a branch with test but no target
 	#
 	def compileBranch(self,negativeTest):
 		if negativeTest:
-			self.binary.cByte(0xCB)											# bit 7,h
-			self.binary.cByte(0x7C)
+			self.binary.cByte(0xCB)											# bit 7,d
+			self.binary.cByte(0x7A)
 		else:
-			self.binary.cByte(0x7C)											# ld a,h
-			self.binary.cByte(0xB5)											# or l
+			self.binary.cByte(0x7A)											# ld a,d
+			self.binary.cByte(0xB3)											# or e
 		self.binary.cByte(0xCA)												# jp z,xxxx
 		self.binary.cWord(self.binary.getCodeAddress())
 		return self.binary.getCodeAddress() - 2
@@ -223,9 +249,9 @@ class Compiler(object):
 			self.binary.cWord(self.forLoop)
 
 if __name__ == "__main__":
-	print("*** M7 Python Compiler ***")
+	print("*** ColorForth Python Compiler ***")
 	cc = Compiler()
-	cc.binary.echo = False
+	#cc.binary.echo = False
 	for f in sys.argv[1:]:
 		print("\tCompiling '"+f+"'")
 		cc.compileFile(f)
