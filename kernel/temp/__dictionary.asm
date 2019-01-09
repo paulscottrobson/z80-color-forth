@@ -1,3 +1,21 @@
+	db	21
+	db	$20
+	dw	_define_forth_73_79_73_2e_65_78_70_61_6e_64_2e_6d_61_63_72_6f
+	db	16
+	db	"sys.expand.macro"
+
+	db	7
+	db	$20
+	dw	_define_forth_31_2c
+	db	2
+	db	"1,"
+
+	db	7
+	db	$20
+	dw	_define_forth_32_2c
+	db	2
+	db	"2,"
+
 	db	6
 	db	$20
 	dw	_define_forth_2b
@@ -75,192 +93,6 @@
 	dw	_define_forth_6c_6f_72
 	db	3
 	db	"lor"
-
-	db	6
-	db	$20
-	dw	_define_forth_21
-	db	1
-	db	"!"
-
-	db	6
-	db	$20
-	dw	_define_macro_21
-	db	129
-	db	"!"
-
-	db	7
-	db	$20
-	dw	_define_forth_2b_21
-	db	2
-	db	"+!"
-
-	db	6
-	db	$20
-	dw	_define_forth_40
-	db	1
-	db	"@"
-
-	db	6
-	db	$20
-	dw	_define_macro_40
-	db	129
-	db	"@"
-
-	db	7
-	db	$20
-	dw	_define_forth_62_40
-	db	2
-	db	"b@"
-
-	db	7
-	db	$20
-	dw	_define_macro_62_40
-	db	130
-	db	"b@"
-
-	db	7
-	db	$20
-	dw	_define_forth_63_40
-	db	2
-	db	"c@"
-
-	db	7
-	db	$20
-	dw	_define_macro_63_40
-	db	130
-	db	"c@"
-
-	db	7
-	db	$20
-	dw	_define_forth_62_21
-	db	2
-	db	"b!"
-
-	db	7
-	db	$20
-	dw	_define_macro_62_21
-	db	130
-	db	"b!"
-
-	db	7
-	db	$20
-	dw	_define_forth_63_21
-	db	2
-	db	"c!"
-
-	db	7
-	db	$20
-	dw	_define_macro_63_21
-	db	130
-	db	"c!"
-
-	db	8
-	db	$20
-	dw	_define_forth_6f_72_21
-	db	3
-	db	"or!"
-
-	db	7
-	db	$20
-	dw	_define_forth_70_40
-	db	2
-	db	"p@"
-
-	db	7
-	db	$20
-	dw	_define_macro_70_40
-	db	130
-	db	"p@"
-
-	db	7
-	db	$20
-	dw	_define_forth_70_21
-	db	2
-	db	"p!"
-
-	db	7
-	db	$20
-	dw	_define_macro_70_21
-	db	130
-	db	"p!"
-
-	db	21
-	db	$20
-	dw	_define_forth_73_79_73_2e_65_78_70_61_6e_64_2e_6d_61_63_72_6f
-	db	16
-	db	"sys.expand.macro"
-
-	db	7
-	db	$20
-	dw	_define_forth_31_2c
-	db	2
-	db	"1,"
-
-	db	7
-	db	$20
-	dw	_define_forth_32_2c
-	db	2
-	db	"2,"
-
-	db	9
-	db	$20
-	dw	_define_forth_64_72_6f_70
-	db	4
-	db	"drop"
-
-	db	9
-	db	$20
-	dw	_define_macro_64_72_6f_70
-	db	132
-	db	"drop"
-
-	db	8
-	db	$20
-	dw	_define_forth_64_75_70
-	db	3
-	db	"dup"
-
-	db	8
-	db	$20
-	dw	_define_macro_64_75_70
-	db	131
-	db	"dup"
-
-	db	8
-	db	$20
-	dw	_define_forth_6e_69_70
-	db	3
-	db	"nip"
-
-	db	8
-	db	$20
-	dw	_define_macro_6e_69_70
-	db	131
-	db	"nip"
-
-	db	9
-	db	$20
-	dw	_define_forth_6f_76_65_72
-	db	4
-	db	"over"
-
-	db	9
-	db	$20
-	dw	_define_macro_6f_76_65_72
-	db	132
-	db	"over"
-
-	db	9
-	db	$20
-	dw	_define_forth_73_77_61_70
-	db	4
-	db	"swap"
-
-	db	9
-	db	$20
-	dw	_define_macro_73_77_61_70
-	db	132
-	db	"swap"
 
 	db	6
 	db	$20
@@ -375,6 +207,174 @@
 	dw	_define_forth_6e_65_67_61_74_65
 	db	6
 	db	"negate"
+
+	db	6
+	db	$20
+	dw	_define_forth_21
+	db	1
+	db	"!"
+
+	db	6
+	db	$20
+	dw	_define_macro_21
+	db	129
+	db	"!"
+
+	db	7
+	db	$20
+	dw	_define_forth_2b_21
+	db	2
+	db	"+!"
+
+	db	6
+	db	$20
+	dw	_define_forth_40
+	db	1
+	db	"@"
+
+	db	6
+	db	$20
+	dw	_define_macro_40
+	db	129
+	db	"@"
+
+	db	7
+	db	$20
+	dw	_define_forth_62_40
+	db	2
+	db	"b@"
+
+	db	7
+	db	$20
+	dw	_define_macro_62_40
+	db	130
+	db	"b@"
+
+	db	7
+	db	$20
+	dw	_define_forth_63_40
+	db	2
+	db	"c@"
+
+	db	7
+	db	$20
+	dw	_define_macro_63_40
+	db	130
+	db	"c@"
+
+	db	7
+	db	$20
+	dw	_define_forth_62_21
+	db	2
+	db	"b!"
+
+	db	7
+	db	$20
+	dw	_define_macro_62_21
+	db	130
+	db	"b!"
+
+	db	7
+	db	$20
+	dw	_define_forth_63_21
+	db	2
+	db	"c!"
+
+	db	7
+	db	$20
+	dw	_define_macro_63_21
+	db	130
+	db	"c!"
+
+	db	8
+	db	$20
+	dw	_define_forth_6f_72_21
+	db	3
+	db	"or!"
+
+	db	7
+	db	$20
+	dw	_define_forth_70_40
+	db	2
+	db	"p@"
+
+	db	7
+	db	$20
+	dw	_define_macro_70_40
+	db	130
+	db	"p@"
+
+	db	7
+	db	$20
+	dw	_define_forth_70_21
+	db	2
+	db	"p!"
+
+	db	7
+	db	$20
+	dw	_define_macro_70_21
+	db	130
+	db	"p!"
+
+	db	9
+	db	$20
+	dw	_define_forth_64_72_6f_70
+	db	4
+	db	"drop"
+
+	db	9
+	db	$20
+	dw	_define_macro_64_72_6f_70
+	db	132
+	db	"drop"
+
+	db	8
+	db	$20
+	dw	_define_forth_64_75_70
+	db	3
+	db	"dup"
+
+	db	8
+	db	$20
+	dw	_define_macro_64_75_70
+	db	131
+	db	"dup"
+
+	db	8
+	db	$20
+	dw	_define_forth_6e_69_70
+	db	3
+	db	"nip"
+
+	db	8
+	db	$20
+	dw	_define_macro_6e_69_70
+	db	131
+	db	"nip"
+
+	db	9
+	db	$20
+	dw	_define_forth_6f_76_65_72
+	db	4
+	db	"over"
+
+	db	9
+	db	$20
+	dw	_define_macro_6f_76_65_72
+	db	132
+	db	"over"
+
+	db	9
+	db	$20
+	dw	_define_forth_73_77_61_70
+	db	4
+	db	"swap"
+
+	db	9
+	db	$20
+	dw	_define_macro_73_77_61_70
+	db	132
+	db	"swap"
 
 	db	0
 

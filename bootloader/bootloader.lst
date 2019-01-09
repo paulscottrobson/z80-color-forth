@@ -1,6 +1,6 @@
               	; --------------------------------------
               	; zasm: assemble "bootloader.asm"
-              	; date: 2019-01-07 10:39:56
+              	; date: 2019-01-09 09:39:26
               	; --------------------------------------
 
 
@@ -31,7 +31,6 @@
 4000: FFFFFFFF			org 	$5AFE
 4004: FF...   	
 5AFE: 007F    			dw 		$7F00	
-              	
 5B00: FFFFFFFF			org 	$7F00 							
 5B04: FF...   	
               	
@@ -146,7 +145,6 @@
 7F6B: F1      			pop 	af
 7F6C: C9      			ret		
               	
-              	
 7F6D:         	DefaultDrive:
 7F6D: 00      			db 		0
 7F6E:         	FileHandle:
@@ -163,6 +161,7 @@
 7FFD: FF...   	
 FFFF: 00      			db 		0
               	
+              	
 
 
 ; +++ segments +++
@@ -171,23 +170,23 @@ FFFF: 00      			db 		0
 
 ; +++ global symbols +++
 
-CloseFile        = $7F65 = 32613          bootloader.asm:132
-DefaultDrive     = $7F6D = 32621          bootloader.asm:141
-FileHandle       = $7F6E = 32622          bootloader.asm:143
-FindDefaultDrive = $7F0D = 32525          bootloader.asm:41
+CloseFile        = $7F65 = 32613          bootloader.asm:131
+DefaultDrive     = $7F6D = 32621          bootloader.asm:139
+FileHandle       = $7F6E = 32622          bootloader.asm:141
+FindDefaultDrive = $7F0D = 32525          bootloader.asm:40
 FirstPage        = $0020 =    32          bootloader.asm:13
-ImageName        = $7FF0 = 32752          bootloader.asm:147
+ImageName        = $7FF0 = 32752          bootloader.asm:145
 LastPage         = $005F =    95          bootloader.asm:14
-OpenFileRead     = $7F41 = 32577          bootloader.asm:92
-Read16kBlock     = $7F54 = 32596          bootloader.asm:113
-ReadNextMemory   = $7F14 = 32532          bootloader.asm:54
-SetPaging        = $7F38 = 32568          bootloader.asm:78
-Start            = $7F00 = 32512          bootloader.asm:29
-__OpenFile       = $7F47 = 32583          bootloader.asm:97 (unused)
-__ReadBlockLoop  = $7F23 = 32547          bootloader.asm:60
+OpenFileRead     = $7F41 = 32577          bootloader.asm:91
+Read16kBlock     = $7F54 = 32596          bootloader.asm:112
+ReadNextMemory   = $7F14 = 32532          bootloader.asm:53
+SetPaging        = $7F38 = 32568          bootloader.asm:77
+Start            = $7F00 = 32512          bootloader.asm:28
+__OpenFile       = $7F47 = 32583          bootloader.asm:96 (unused)
+__ReadBlockLoop  = $7F23 = 32547          bootloader.asm:59
 _end             = $0000 = 65536          bootloader.asm:15 (unused)
 _size            = $C01B = 49179          bootloader.asm:15 (unused)
 
 
-total time: 0.0013 sec.
+total time: 0.0016 sec.
 no errors
