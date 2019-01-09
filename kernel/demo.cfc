@@ -1,7 +1,3 @@
 forth
-:main if ; ;
+:main break 42 for next ;
 
-// FOR rewrite
-// variable rewrite.
-// !! @@ rewrite.
-// Paging code.

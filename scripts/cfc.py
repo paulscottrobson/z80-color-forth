@@ -134,16 +134,16 @@ class Compiler(object):
 			if newFunc["name"] in self.forthDictionary or newFunc["name"] in self.macroDictionary:						
 				raise CompilerException("Name duplicated {0}".format(newFunc["name"]))
 
-			if self.useForthDictionary:
+			if self.useForthDictionary:										# Put record in local copy
 				self.forthDictionary[newFunc["name"]] = newFunc				
 			else:
 				self.macroDictionary[newFunc["name"]] = newFunc				
 
-			if not newFunc["name"].startswith("_"): 						# add to binary if not _
+			if not newFunc["name"].startswith("_"): 						# add to binary if not a _<identifier>
 				self.binary.addDictionary(newFunc["name"],newFunc["page"],newFunc["address"],self.useForthDictionary)
 
 			if newFunc["name"] == "main":									# main word ?
-				self.binary.setBoot(newFunc["page"],newFunc["address"])	# +3 for code not header
+				self.binary.setBoot(newFunc["page"],newFunc["address"])	
 
 			self.defOpen = True 											# in a definition
 			self.defStart = self.binary.getCodeAddress()					# prefix here.
@@ -234,20 +234,31 @@ class Compiler(object):
 	#		For loop code
 	#
 	def forCompile(self,cmd):
+
 		if cmd == "for":
+			self.binary.cByte(0xEB)											# ex de,hl
+			self.binary.cByte(0xD1)											# pop de
 			self.forLoop = self.binary.getCodeAddress()
-			self.binary.cByte(0x2B)											# dec hl
-			self.binary.cByte(0xE5)											# push hl
-		if cmd == "i":
-			self.binary.cByte(0xE1)											# pop hl
-			self.binary.cByte(0xE5)											# push hl
+			self.binary.cByte(0x22)											# ld (xxxx),hl
+			self.binary.cWord(0x00)
+		#
 		if cmd == "next":
-			self.binary.cByte(0xE1)											# pop hl
+			patch = self.binary.getCodeAddress()+1 							# where to store count
+			self.binary.write(self.binary.getCodePage(),self.forLoop+1,patch & 0xFF)
+			self.binary.write(self.binary.getCodePage(),self.forLoop+2,patch >> 8)
+
+			self.binary.cByte(0x21)											# ld hl,$0000
+			self.binary.cWord(0x0000)
+
+			self.binary.cByte(0x2B)											# dec hl
 			self.binary.cByte(0x7C)											# ld a,h
 			self.binary.cByte(0xB5)											# or l
 			self.binary.cByte(0xC2)											# jp nz,xxxx
 			self.binary.cWord(self.forLoop)
 
+		if cmd == "i":
+			pass
+			
 if __name__ == "__main__":
 	print("*** ColorForth Python Compiler ***")
 	cc = Compiler()

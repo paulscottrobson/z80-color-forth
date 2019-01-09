@@ -1,6 +1,6 @@
               	; --------------------------------------
               	; zasm: assemble "kernel.asm"
-              	; date: 2019-01-09 12:09:53
+              	; date: 2019-01-09 13:16:18
               	; --------------------------------------
 
 
@@ -2439,5 +2439,5 @@ _start_9                  = $854E = 34126          __words.asm:337
 expandMacro               = $83FE = 33790          __words.asm:4
 
 
-total time: 0.0082 sec.
+total time: 0.0098 sec.
 no errors
